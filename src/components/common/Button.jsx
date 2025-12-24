@@ -15,7 +15,7 @@ const Button = ({
 
   const variants = {
     primary:
-      "bg-gradient-metal text-white hover:shadow-metal-lg focus:ring-primary-500 shadow-metal",
+      "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 hover:shadow-lg focus:ring-emerald-500 shadow-md",
     secondary: "bg-gradient-dark text-white hover:shadow-lg focus:ring-metal-600",
     danger: "bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg focus:ring-red-500",
     success: "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:shadow-metal-lg focus:ring-primary-500",

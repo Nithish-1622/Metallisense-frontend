@@ -129,26 +129,13 @@ const Sidebar = ({ setRunTour }) => {
       >
         <div className="flex flex-col h-full">
           {/* Company Header */}
-          <div className="bg-gradient-to-b from-emerald-50 to-green-50 px-4 py-6 border-b border-metal-200">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="bg-gradient-to-b from-emerald-50 to-green-50 px-4 py-5 border-b border-metal-200">
+            <div className="flex items-center gap-3 ">
               <img
                 src={logo}
                 alt="MetalliSense Logo"
-                className="h-12 w-auto object-contain"
+                className="h-12 w-auto object-cover"
               />
-            </div>
-
-            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg px-3 py-3">
-              <div className="text-sm font-semibold text-emerald-700 mb-1">
-                Industrial Operations
-              </div>
-              <div className="text-xs text-metal-600 leading-relaxed">
-                Metal Analysis System
-                <br />
-                Quality Control Unit
-                <br />
-                Real-time Monitoring
-              </div>
             </div>
           </div>
 
