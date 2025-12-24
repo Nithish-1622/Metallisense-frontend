@@ -97,8 +97,8 @@ const Dashboard = () => {
         {/* Header */}
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-4">
-            <LayoutDashboard className="text-emerald-700 text-3xl" size={32} />
-            <h1 className="text-3xl md:text-4xl font-light text-slate-800 tracking-wide">
+            <LayoutDashboard className="text-emerald-700 text-3xl" size={33} />
+            <h1 className="text-3xl font-bold md:text-4xl  text-slate-800 tracking-wide">
               MetalliSense Dashboard
             </h1>
           </div>
