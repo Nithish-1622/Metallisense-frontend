@@ -10,7 +10,6 @@ import { OPCProvider } from "./context/OPCContext";
 import { GradeProvider } from "./context/GradeContext";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
-import OnboardTour from "./pages/OnboardTour";
 import AnomalyDetection from "./pages/AnomalyDetection";
 import Recommendation from "./pages/Recommendation";
 import AIAgent from "./pages/AIAgent";
@@ -30,7 +29,6 @@ function App() {
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
-                <Route path="onboard" element={<OnboardTour />} />
                 <Route path="anomaly" element={<AnomalyDetection />} />
                 <Route path="recommendation" element={<Recommendation />} />
                 <Route path="agent" element={<AIAgent />} />

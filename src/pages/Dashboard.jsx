@@ -73,7 +73,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div data-tour="dashboard-stats" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* OPC Status Card */}
         <Card className="hover:scale-105 transition-transform">
           <div className="flex items-center justify-between">
