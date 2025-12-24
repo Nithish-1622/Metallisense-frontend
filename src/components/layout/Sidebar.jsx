@@ -20,7 +20,7 @@ const sidebarItems = [
     id: "onboard-tour",
     label: "Onboard Tour",
     icon: GraduationCap,
-    path: "/onboard",
+    isTour: true,
     category: "core",
   },
   {
@@ -81,7 +81,7 @@ const sidebarItems = [
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ setRunTour }) => {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -129,7 +129,7 @@ const Sidebar = () => {
       >
         <div className="flex flex-col h-full">
           {/* Company Header */}
-          <div className="bg-gradient-to-b from-primary-50 to-accent-50 px-4 py-6 border-b border-metal-200">
+          <div className="bg-gradient-to-b from-emerald-50 to-green-50 px-4 py-6 border-b border-metal-200">
             <div className="flex items-center gap-3 mb-4">
               <img
                 src={logo}
@@ -138,8 +138,8 @@ const Sidebar = () => {
               />
             </div>
 
-            <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg px-3 py-3">
-              <div className="text-sm font-semibold text-primary-700 mb-1">
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg px-3 py-3">
+              <div className="text-sm font-semibold text-emerald-700 mb-1">
                 Industrial Operations
               </div>
               <div className="text-xs text-metal-600 leading-relaxed">
@@ -160,30 +160,48 @@ const Sidebar = () => {
                 Core Operations
               </div>
 
-              {coreItems.map((item) => (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  onClick={closeSidebar}
-                  className={({ isActive }) =>
-                    `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/25"
-                        : "text-metal-700 hover:bg-primary-50 hover:text-primary-700"
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <item.icon
-                        size={18}
-                        className={isActive ? "text-white" : "text-metal-500"}
-                      />
+              {coreItems.map((item) => {
+                if (item.isTour) {
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setRunTour(true);
+                        closeSidebar();
+                      }}
+                      className="w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
+                    >
+                      <item.icon size={18} className="text-metal-500" />
                       <span className="text-xs">{item.label}</span>
-                    </>
-                  )}
-                </NavLink>
-              ))}
+                    </button>
+                  );
+                }
+
+                return (
+                  <NavLink
+                    key={item.id}
+                    to={item.path}
+                    onClick={closeSidebar}
+                    className={({ isActive }) =>
+                      `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
+                          : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <item.icon
+                          size={18}
+                          className={isActive ? "text-white" : "text-metal-500"}
+                        />
+                        <span className="text-xs">{item.label}</span>
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
 
               {/* AI & Analytics */}
               <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-3 px-2 mt-6">
@@ -198,8 +216,8 @@ const Sidebar = () => {
                   className={({ isActive }) =>
                     `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/25"
-                        : "text-metal-700 hover:bg-primary-50 hover:text-primary-700"
+                        ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
+                        : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
                     }`
                   }
                 >
@@ -228,8 +246,8 @@ const Sidebar = () => {
                   className={({ isActive }) =>
                     `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/25"
-                        : "text-metal-700 hover:bg-primary-50 hover:text-primary-700"
+                        ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
+                        : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
                     }`
                   }
                 >
@@ -249,10 +267,10 @@ const Sidebar = () => {
 
           {/* System Status */}
           <div className="px-4 py-4 border-t border-metal-200">
-            <div className="bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-lg px-3 py-2 mb-4">
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg px-3 py-2 mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-primary-700 font-semibold">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-emerald-700 font-semibold">
                   All Systems Online
                 </span>
               </div>
@@ -277,11 +295,11 @@ const Sidebar = () => {
           border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #15c26b;
+          background: #10b981;
           border-radius: 3px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #0fa055;
+          background: #059669;
         }
         `}
       </style>
