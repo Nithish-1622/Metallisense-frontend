@@ -13,12 +13,22 @@ export const GradeProvider = ({ children }) => {
     setError(null);
     try {
       const response = await getAllGrades(params);
-      setGrades(response.data.data || []);
+      const data = response.data.data;
+      // Ensure grades is always an array
+      if (Array.isArray(data)) {
+        setGrades(data);
+      } else if (data && Array.isArray(data.data)) {
+        setGrades(data.data);
+      } else {
+        console.warn("API returned non-array data:", data);
+        setGrades([]);
+      }
       return response.data;
     } catch (err) {
       const errorMsg = err.response?.data?.message || "Failed to fetch grades";
       setError(errorMsg);
       console.error("Failed to fetch grades:", err);
+      setGrades([]);
       return { error: errorMsg };
     } finally {
       setLoading(false);

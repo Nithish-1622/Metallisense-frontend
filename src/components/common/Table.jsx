@@ -7,6 +7,9 @@ const Table = ({
   loading = false,
   emptyMessage = "No data available",
 }) => {
+  // Ensure data is always an array
+  const safeData = Array.isArray(data) ? data : [];
+
   if (loading) {
     return (
       <div className="w-full overflow-x-auto rounded-xl border border-metal-200">
@@ -39,7 +42,7 @@ const Table = ({
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!safeData || safeData.length === 0) {
     return (
       <div className="text-center py-12 text-metal-500 bg-metal-50 rounded-xl border border-metal-200">
         <p className="font-medium">{emptyMessage}</p>
@@ -66,7 +69,7 @@ const Table = ({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-metal-100">
-          {data.map((row, rowIndex) => (
+          {safeData.map((row, rowIndex) => (
             <tr key={rowIndex} className="hover:bg-primary-50/50 transition-all">
               {columns.map((column, colIndex) => (
                 <td

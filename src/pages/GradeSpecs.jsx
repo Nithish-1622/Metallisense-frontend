@@ -26,7 +26,9 @@ const GradeSpecs = () => {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const filteredGrades = grades.filter((grade) =>
+  // Ensure grades is always an array
+  const safeGrades = Array.isArray(grades) ? grades : [];
+  const filteredGrades = safeGrades.filter((grade) =>
     grade.gradeName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

@@ -28,7 +28,7 @@ const MainLayout = () => {
       content: (
         <div>
           <h2 className="text-2xl font-bold mb-3">
-            Welcome to MetalliSense! 🚀
+            Welcome to MetalliSense! 
           </h2>
           <p className="text-metal-600">
             MetalliSense is an industrial-grade metal analysis and quality
