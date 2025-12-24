@@ -1,232 +1,167 @@
-import React, { useState, useContext } from "react";
-import { OPCContext } from "../context/OPCContext";
-import { GradeContext } from "../context/GradeContext";
+import React, { useState } from "react";
 import Card from "../components/common/Card";
-import Button from "../components/common/Button";
-import Slider from "../components/common/Slider";
-import Select from "../components/common/Select";
 import Badge from "../components/common/Badge";
-import { generateSyntheticReading } from "../services/opcService";
+import SyntheticGenerator from "../components/common/SyntheticGenerator";
 import toast from "react-hot-toast";
-import { ELEMENT_SYMBOLS, DEVIATION_LIMITS } from "../utils/constants";
 import { formatPercentage } from "../utils/formatters";
 
 const SyntheticData = () => {
-  const {
-    opcStatus,
-    connect,
-    disconnect,
-    loading: opcLoading,
-  } = useContext(OPCContext);
-  const { grades } = useContext(GradeContext);
-  const [selectedGrade, setSelectedGrade] = useState("");
-  const [deviationElements, setDeviationElements] = useState([]);
-  const [deviationPercentage, setDeviationPercentage] = useState(
-    DEVIATION_LIMITS.DEFAULT
-  );
   const [generatedReading, setGeneratedReading] = useState(null);
-  const [generating, setGenerating] = useState(false);
 
-  const gradeOptions = grades.map((g) => ({
-    value: g.gradeName,
-    label: g.gradeName,
-  }));
-
-  const handleToggleElement = (element) => {
-    if (deviationElements.includes(element)) {
-      setDeviationElements(deviationElements.filter((el) => el !== element));
-    } else {
-      setDeviationElements([...deviationElements, element]);
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!selectedGrade) {
-      toast.error("Please select a grade");
-      return;
-    }
-
-    setGenerating(true);
-    try {
-      const response = await generateSyntheticReading({
-        gradeName: selectedGrade,
-        deviationElements,
-        deviationPercentage,
-      });
-
-      setGeneratedReading(response.data.data);
-      toast.success("Synthetic reading generated successfully");
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to generate synthetic reading"
-      );
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const handleConnect = async () => {
-    const result = await connect();
-    if (result.success) {
-      toast.success("OPC Server connected");
-    } else {
-      toast.error(result.error || "Failed to connect to OPC Server");
-    }
-  };
-
-  const handleDisconnect = async () => {
-    const result = await disconnect();
-    if (result.success) {
-      toast.success("OPC Server disconnected");
-    } else {
-      toast.error(result.error || "Failed to disconnect from OPC Server");
-    }
+  const handleDataGenerated = async (reading, params) => {
+    setGeneratedReading(reading);
+    toast.success("Synthetic reading generated successfully");
   };
 
   return (
     <div className="space-y-6">
-      {/* OPC Connection Control */}
-      <Card title="OPC Connection">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div
-              className={`h-3 w-3 rounded-full ${
-                opcStatus.connected
-                  ? "bg-green-500 animate-pulse"
-                  : "bg-red-500"
-              }`}
-            />
-            <span className="font-medium">
-              Status: {opcStatus.connected ? "Connected" : "Disconnected"}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={handleConnect}
-              loading={opcLoading}
-              disabled={opcStatus.connected}
-              variant={opcStatus.connected ? "secondary" : "primary"}
-            >
-              Connect
-            </Button>
-            <Button
-              onClick={handleDisconnect}
-              loading={opcLoading}
-              disabled={!opcStatus.connected}
-              variant="danger"
-            >
-              Disconnect
-            </Button>
-          </div>
-        </div>
-      </Card>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-dark-900">
+          Synthetic Data Generator
+        </h1>
+        <p className="text-dark-600 mt-1">
+          Generate synthetic spectrometer readings for testing and training
+        </p>
+      </div>
 
-      {/* Configuration */}
-      <Card title="Synthetic Data Configuration">
-        <div className="space-y-6">
-          <Select
-            label="Select Grade"
-            value={selectedGrade}
-            onChange={(e) => setSelectedGrade(e.target.value)}
-            options={[
-              { value: "", label: "Select a grade..." },
-              ...gradeOptions,
-            ]}
-          />
+      {/* Synthetic Generator */}
+      <SyntheticGenerator
+        onDataGenerated={handleDataGenerated}
+        buttonText="Generate Synthetic Reading"
+      />
 
-          <div>
-            <label className="block text-sm font-medium text-dark-700 mb-3">
-              Deviation Elements
-            </label>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-              {ELEMENT_SYMBOLS.map((element) => (
-                <button
-                  key={element}
-                  type="button"
-                  onClick={() => handleToggleElement(element)}
-                  className={`px-4 py-2 rounded-lg border-2 font-mono font-semibold transition-all ${
-                    deviationElements.includes(element)
-                      ? "border-primary-500 bg-primary-50 text-primary-700"
-                      : "border-dark-200 bg-white text-dark-600 hover:border-dark-300"
-                  }`}
-                >
-                  {element}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Slider
-            label="Deviation Percentage"
-            value={deviationPercentage}
-            onChange={setDeviationPercentage}
-            min={DEVIATION_LIMITS.MIN}
-            max={DEVIATION_LIMITS.MAX}
-            step={1}
-          />
-
-          <Button
-            onClick={handleGenerate}
-            loading={generating}
-            className="w-full"
-          >
-            Generate Synthetic Reading
-          </Button>
-        </div>
-      </Card>
-
-      {/* Generated Reading */}
+      {/* Display Generated Reading */}
       {generatedReading && (
         <Card title="Generated Reading">
           <div className="space-y-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {Object.entries(generatedReading.syntheticReading).map(
-                ([element, value]) => {
-                  const isDeviated =
-                    generatedReading.metadata?.deviatedElements?.includes(
-                      element
-                    );
-                  return (
-                    <div
-                      key={element}
-                      className={`p-4 rounded-lg border-2 ${
-                        isDeviated
-                          ? "border-yellow-300 bg-yellow-50"
-                          : "border-dark-200 bg-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-mono font-bold text-lg">
-                          {element}
-                        </span>
-                        {isDeviated && (
-                          <Badge variant="warning">Deviated</Badge>
-                        )}
-                      </div>
-                      <p className="text-2xl font-bold text-dark-900">
-                        {formatPercentage(value)}
-                      </p>
-                    </div>
-                  );
-                }
-              )}
+            {/* Metadata */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4 border-b border-dark-200">
+              <div>
+                <p className="text-sm text-dark-600">Metal Grade</p>
+                <p className="text-lg font-bold font-mono text-dark-900">
+                  {generatedReading.metalGrade}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-dark-600">Deviation %</p>
+                <p className="text-lg font-bold text-primary-600">
+                  {generatedReading.deviationPercentage}%
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-dark-600">Temperature</p>
+                <p className="text-lg font-bold text-dark-900">
+                  {generatedReading.temperature}°C
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-dark-600">Pressure</p>
+                <p className="text-lg font-bold text-dark-900">
+                  {generatedReading.pressure} atm
+                </p>
+              </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button onClick={handleGenerate} variant="outline">
-                Generate New
-              </Button>
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    JSON.stringify(generatedReading.syntheticReading, null, 2)
-                  );
-                  toast.success("Copied to clipboard");
-                }}
-                variant="secondary"
-              >
-                Copy JSON
-              </Button>
+            {/* Composition */}
+            <div>
+              <h3 className="text-lg font-semibold text-dark-900 mb-3">
+                Composition
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {Object.entries(generatedReading.composition).map(
+                  ([element, value]) => {
+                    const isDeviated =
+                      generatedReading.deviationElements?.includes(element);
+                    return (
+                      <div
+                        key={element}
+                        className={`p-4 rounded-lg border-2 ${
+                          isDeviated
+                            ? "bg-yellow-50 border-yellow-300"
+                            : "bg-dark-50 border-dark-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-mono font-bold text-lg text-dark-900">
+                            {element}
+                          </span>
+                          {isDeviated && (
+                            <Badge variant="warning" className="text-xs">
+                              Deviated
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-2xl font-bold text-dark-900">
+                          {formatPercentage(value)}
+                        </p>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
+
+            {/* Applied Deviations */}
+            {generatedReading.appliedDeviations &&
+              generatedReading.appliedDeviations.length > 0 && (
+                <div className="pt-4 border-t border-dark-200">
+                  <h3 className="text-lg font-semibold text-dark-900 mb-3">
+                    Applied Deviations
+                  </h3>
+                  <div className="grid gap-3">
+                    {generatedReading.appliedDeviations.map(
+                      (deviation, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Badge variant="warning" className="font-mono">
+                              {deviation.element}
+                            </Badge>
+                            <span className="text-dark-700">
+                              {formatPercentage(deviation.original)} →{" "}
+                              {formatPercentage(deviation.deviated)}
+                            </span>
+                          </div>
+                          <Badge variant="warning">
+                            {deviation.deviationPercent > 0 ? "+" : ""}
+                            {deviation.deviationPercent.toFixed(2)}%
+                          </Badge>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+            {/* Additional Info */}
+            <div className="pt-4 border-t border-dark-200">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <p className="text-dark-600">Source</p>
+                  <p className="font-semibold text-dark-900">
+                    {generatedReading.source || "synthetic"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-dark-600">Base Sample ID</p>
+                  <p className="font-mono text-xs text-dark-900">
+                    {generatedReading.baseSampleId
+                      ? generatedReading.baseSampleId.slice(-12)
+                      : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-dark-600">Timestamp</p>
+                  <p className="text-dark-900">
+                    {generatedReading.timestamp
+                      ? new Date(generatedReading.timestamp).toLocaleString()
+                      : new Date().toLocaleString()}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </Card>
