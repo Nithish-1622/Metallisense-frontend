@@ -9,14 +9,14 @@ const Table = ({
 }) => {
   if (loading) {
     return (
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto rounded-xl border border-metal-200">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-dark-50 border-b border-dark-200">
+            <tr className="bg-gradient-to-r from-metal-50 to-primary-50 border-b-2 border-metal-200">
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className="px-6 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider"
+                  className="px-6 py-4 text-left text-xs font-bold text-metal-700 uppercase tracking-wider"
                 >
                   {column.header}
                 </th>
@@ -25,10 +25,10 @@ const Table = ({
           </thead>
           <tbody>
             {[...Array(5)].map((_, index) => (
-              <tr key={index} className="animate-pulse">
+              <tr key={index} className="animate-pulse border-b border-metal-100">
                 {columns.map((_, colIndex) => (
                   <td key={colIndex} className="px-6 py-4">
-                    <div className="h-4 bg-dark-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-metal-200 rounded w-3/4"></div>
                   </td>
                 ))}
               </tr>
@@ -40,19 +40,23 @@ const Table = ({
   }
 
   if (!data || data.length === 0) {
-    return <div className="text-center py-8 text-dark-500">{emptyMessage}</div>;
+    return (
+      <div className="text-center py-12 text-metal-500 bg-metal-50 rounded-xl border border-metal-200">
+        <p className="font-medium">{emptyMessage}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto rounded-xl border border-metal-200 shadow-metal">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-dark-50 border-b border-dark-200">
+          <tr className="bg-gradient-to-r from-metal-50 to-primary-50 border-b-2 border-metal-200">
             {columns.map((column, index) => (
               <th
                 key={index}
                 className={clsx(
-                  "px-6 py-3 text-left text-xs font-medium text-dark-500 uppercase tracking-wider",
+                  "px-6 py-4 text-left text-xs font-bold text-metal-700 uppercase tracking-wider",
                   column.headerClassName
                 )}
               >
@@ -61,14 +65,14 @@ const Table = ({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-dark-200">
+        <tbody className="bg-white divide-y divide-metal-100">
           {data.map((row, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-dark-50 transition-colors">
+            <tr key={rowIndex} className="hover:bg-primary-50/50 transition-all">
               {columns.map((column, colIndex) => (
                 <td
                   key={colIndex}
                   className={clsx(
-                    "px-6 py-4 text-sm text-dark-900",
+                    "px-6 py-4 text-sm text-metal-900 font-medium",
                     column.cellClassName
                   )}
                 >

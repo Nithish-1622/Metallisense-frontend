@@ -11,22 +11,23 @@ const Button = ({
   ...props
 }) => {
   const baseStyles =
-    "font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+    "font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center";
 
   const variants = {
     primary:
-      "bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500",
-    secondary: "bg-dark-700 text-white hover:bg-dark-600 focus:ring-dark-500",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+      "bg-gradient-metal text-white hover:shadow-metal-lg focus:ring-primary-500 shadow-metal",
+    secondary: "bg-gradient-dark text-white hover:shadow-lg focus:ring-metal-600",
+    danger: "bg-gradient-to-r from-red-600 to-red-700 text-white hover:shadow-lg focus:ring-red-500",
+    success: "bg-gradient-to-r from-primary-500 to-primary-600 text-white hover:shadow-metal-lg focus:ring-primary-500",
     outline:
-      "border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500",
-    ghost: "text-dark-700 hover:bg-dark-100 focus:ring-dark-500",
+      "border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500 bg-white",
+    ghost: "text-metal-700 hover:bg-metal-100 focus:ring-metal-500",
   };
 
   const sizes = {
     sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
+    md: "px-5 py-2.5 text-base",
+    lg: "px-8 py-3.5 text-lg",
   };
 
   return (
