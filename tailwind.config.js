@@ -47,7 +47,7 @@ export default {
         info: "#0ea5e9",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Montserrat", "system-ui", "-apple-system", "sans-serif"],
         mono: ["JetBrains Mono", "Consolas", "monospace"],
       },
       boxShadow: {
