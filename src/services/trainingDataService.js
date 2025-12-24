@@ -5,8 +5,8 @@ export const getAllTrainingData = (params) =>
   api.get("/api/v2/training-data", { params });
 
 // Get training data by grade
-export const getTrainingDataByGrade = (gradeName) =>
-  api.get(`/api/v2/training-data/grade/${gradeName}`);
+export const getTrainingDataByGrade = (gradeName, params) =>
+  api.get(`/api/v2/training-data/grade/${gradeName}`, { params });
 
 // Get statistics for grade
 export const getGradeStatistics = (gradeName) =>

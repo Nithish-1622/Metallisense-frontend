@@ -129,26 +129,13 @@ const Sidebar = ({ setRunTour }) => {
       >
         <div className="flex flex-col h-full">
           {/* Company Header */}
-          <div className="bg-gradient-to-b from-emerald-50 to-green-50 px-4 py-6 border-b border-metal-200">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="bg-gradient-to-b from-emerald-50 to-green-50 px-4 py-5 border-b border-metal-200">
+            <div className="flex items-center gap-3 ">
               <img
                 src={logo}
                 alt="MetalliSense Logo"
-                className="h-12 w-auto object-contain"
+                className="h-12 w-auto object-cover"
               />
-            </div>
-
-            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg px-3 py-3">
-              <div className="text-sm font-semibold text-emerald-700 mb-1">
-                Industrial Operations
-              </div>
-              <div className="text-xs text-metal-600 leading-relaxed">
-                Metal Analysis System
-                <br />
-                Quality Control Unit
-                <br />
-                Real-time Monitoring
-              </div>
             </div>
           </div>
 
@@ -156,11 +143,12 @@ const Sidebar = ({ setRunTour }) => {
           <div className="flex-1 px-4 py-4 overflow-y-auto custom-scrollbar">
             <div className="space-y-1">
               {/* Core Operations */}
-              <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-3 px-2">
-                Core Operations
-              </div>
+              <div className="pb-2">
+                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-4 px-2">
+                  Core Operations
+                </div>
 
-              {coreItems.map((item) => {
+                {coreItems.map((item) => {
                 if (item.isTour) {
                   return (
                     <button
@@ -183,7 +171,7 @@ const Sidebar = ({ setRunTour }) => {
                     to={item.path}
                     onClick={closeSidebar}
                     className={({ isActive }) =>
-                      `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200  ${
                         isActive
                           ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
                           : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
@@ -201,10 +189,12 @@ const Sidebar = ({ setRunTour }) => {
                     )}
                   </NavLink>
                 );
-              })}
+                })}
+              </div>
 
               {/* AI & Analytics */}
-              <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-3 px-2 mt-6">
+              <div className="pb-2">
+                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-4 px-2">
                 AI & Analytics
               </div>
 
@@ -232,9 +222,11 @@ const Sidebar = ({ setRunTour }) => {
                   )}
                 </NavLink>
               ))}
+              </div>
 
               {/* Data Management */}
-              <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-3 px-2 mt-6">
+              <div>
+                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-3 px-2">
                 Data Management
               </div>
 
@@ -262,6 +254,7 @@ const Sidebar = ({ setRunTour }) => {
                   )}
                 </NavLink>
               ))}
+              </div>
             </div>
           </div>
 
