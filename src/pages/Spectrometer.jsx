@@ -29,13 +29,16 @@ const Spectrometer = () => {
     setLoading(true);
     try {
       const response = await getAllReadings();
-      const data = response.data.data || [];
+      console.log("Spectrometer readings response:", response.data);
+      const data = Array.isArray(response.data.data) ? response.data.data : [];
+      console.log("Extracted readings:", data);
       setReadings(data);
       if (data.length > 0) {
         setLatestReading(data[0]);
       }
     } catch (error) {
       console.error("Failed to fetch readings:", error);
+      toast.error("Failed to load readings");
     } finally {
       setLoading(false);
     }
