@@ -45,22 +45,27 @@ const OPCStatusIndicator = () => {
   return (
     <div
       data-tour="opc-status"
-      className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-dark-200"
+      className="flex items-center gap-3 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-xl border-2 border-metal-200 shadow-metal"
     >
       {/* Status Indicator */}
       <div className="flex items-center gap-2">
-        <div
-          className={`h-3 w-3 rounded-full ${
-            status.connected ? "bg-green-500 animate-pulse" : "bg-red-500"
-          }`}
-        />
-        <span className="text-sm font-medium text-dark-700">
+        <div className="relative">
+          <div
+            className={`h-3 w-3 rounded-full ${
+              status.connected ? "bg-primary-500" : "bg-metal-400"
+            }`}
+          />
+          {status.connected && (
+            <div className="absolute inset-0 h-3 w-3 rounded-full bg-primary-500 animate-ping opacity-75" />
+          )}
+        </div>
+        <span className="text-sm font-semibold text-metal-800">
           {status.connected ? "Connected" : "Disconnected"}
         </span>
       </div>
 
       {/* Divider */}
-      <div className="h-6 w-px bg-dark-200" />
+      <div className="h-6 w-px bg-metal-300" />
 
       {/* Action Buttons */}
       <div className="flex gap-2">
@@ -71,10 +76,10 @@ const OPCStatusIndicator = () => {
             onClick={handleConnect}
             disabled={isLoading}
             loading={isLoading}
-            className="!py-1 !px-3"
+            className="!py-1.5 !px-4 flex items-center gap-2"
           >
-            <Wifi className="w-4 h-4 mr-1" />
-            Connect
+            <Wifi className="w-4 h-4" />
+            <span>Connect</span>
           </Button>
         ) : (
           <Button
@@ -83,10 +88,10 @@ const OPCStatusIndicator = () => {
             onClick={handleDisconnect}
             disabled={isLoading}
             loading={isLoading}
-            className="!py-1 !px-3"
+            className="!py-1.5 !px-4 flex items-center gap-2"
           >
-            <WifiOff className="w-4 h-4 mr-1" />
-            Disconnect
+            <WifiOff className="w-4 h-4" />
+            <span>Disconnect</span>
           </Button>
         )}
       </div>
@@ -94,8 +99,8 @@ const OPCStatusIndicator = () => {
       {/* Server URL (if connected) */}
       {status.connected && status.serverUrl && (
         <>
-          <div className="h-6 w-px bg-dark-200" />
-          <span className="text-xs text-dark-600 font-mono">
+          <div className="h-6 w-px bg-metal-300" />
+          <span className="text-xs text-metal-600 font-mono bg-metal-50 px-3 py-1 rounded-lg">
             {status.serverUrl}
           </span>
         </>

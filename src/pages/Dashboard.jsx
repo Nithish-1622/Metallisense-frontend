@@ -75,24 +75,22 @@ const Dashboard = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* OPC Status Card */}
-        <Card>
+        <Card className="hover:scale-105 transition-transform">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-dark-500">OPC Server</p>
-              <p className="text-2xl font-bold text-dark-900 mt-1">
+              <p className="text-sm font-semibold text-metal-600">OPC Server</p>
+              <p className="text-3xl font-bold text-metal-900 mt-1">
                 {opcStatus.connected ? "Online" : "Offline"}
               </p>
             </div>
             <div
-              className={`p-3 rounded-full ${
-                opcStatus.connected ? "bg-green-100" : "bg-red-100"
+              className={`p-4 rounded-xl ${
+                opcStatus.connected ? "bg-gradient-to-br from-primary-500 to-primary-600 shadow-metal" : "bg-gradient-to-br from-red-500 to-red-600"
               }`}
             >
               <Activity
-                size={24}
-                className={
-                  opcStatus.connected ? "text-green-600" : "text-red-600"
-                }
+                size={28}
+                className="text-white"
               />
             </div>
           </div>
@@ -104,55 +102,55 @@ const Dashboard = () => {
         </Card>
 
         {/* Grades Card */}
-        <Card>
+        <Card className="hover:scale-105 transition-transform">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-dark-500">Total Grades</p>
-              <p className="text-2xl font-bold text-dark-900 mt-1">
+              <p className="text-sm font-semibold text-metal-600">Total Grades</p>
+              <p className="text-3xl font-bold text-metal-900 mt-1">
                 {stats.totalGrades}
               </p>
             </div>
-            <div className="p-3 rounded-full bg-primary-100">
-              <FileCheck size={24} className="text-primary-600" />
+            <div className="p-4 rounded-xl bg-gradient-to-br from-primary-500 to-accent-600 shadow-metal">
+              <FileCheck size={28} className="text-white" />
             </div>
           </div>
-          <p className="text-xs text-dark-500 mt-4">
+          <p className="text-xs text-metal-600 mt-4 font-medium">
             Grade specifications defined
           </p>
         </Card>
 
         {/* Readings Card */}
-        <Card>
+        <Card className="hover:scale-105 transition-transform">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-dark-500">
+              <p className="text-sm font-semibold text-metal-600">
                 Total Readings
               </p>
-              <p className="text-2xl font-bold text-dark-900 mt-1">
+              <p className="text-3xl font-bold text-metal-900 mt-1">
                 {stats.totalReadings}
               </p>
             </div>
-            <div className="p-3 rounded-full bg-blue-100">
-              <Database size={24} className="text-blue-600" />
+            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+              <Database size={28} className="text-white" />
             </div>
           </div>
-          <p className="text-xs text-dark-500 mt-4">Spectrometer readings</p>
+          <p className="text-xs text-metal-600 mt-4 font-medium">Spectrometer readings</p>
         </Card>
 
         {/* Anomalies Card */}
-        <Card>
+        <Card className="hover:scale-105 transition-transform">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-dark-500">Anomalies</p>
-              <p className="text-2xl font-bold text-dark-900 mt-1">
+              <p className="text-sm font-semibold text-metal-600">Anomalies</p>
+              <p className="text-3xl font-bold text-metal-900 mt-1">
                 {stats.totalAnomalies}
               </p>
             </div>
-            <div className="p-3 rounded-full bg-yellow-100">
-              <LayoutDashboard size={24} className="text-yellow-600" />
+            <div className="p-4 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 shadow-lg">
+              <LayoutDashboard size={28} className="text-white" />
             </div>
           </div>
-          <p className="text-xs text-dark-500 mt-4">Detected anomalies</p>
+          <p className="text-xs text-metal-600 mt-4 font-medium">Detected anomalies</p>
         </Card>
       </div>
 
@@ -162,15 +160,24 @@ const Dashboard = () => {
         <Card title="Readings Over Time">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5eaef" />
+              <XAxis dataKey="name" stroke="#6b7f94" />
+              <YAxis stroke="#6b7f94" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'white', 
+                  borderRadius: '12px', 
+                  border: '2px solid #e5eaef',
+                  boxShadow: '0 2px 8px rgba(15, 194, 107, 0.1)'
+                }}
+              />
               <Line
                 type="monotone"
                 dataKey="readings"
-                stroke="#16a34a"
-                strokeWidth={2}
+                stroke="#15c26b"
+                strokeWidth={3}
+                dot={{ fill: '#15c26b', strokeWidth: 2, r: 5 }}
+                activeDot={{ r: 7 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -182,16 +189,16 @@ const Dashboard = () => {
             {recentActivity.map((activity) => (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 pb-3 border-b border-dark-100 last:border-0"
+                className="flex items-start gap-3 pb-4 border-b border-metal-100 last:border-0 hover:bg-metal-50 p-2 rounded-lg transition-all"
               >
-                <div className="mt-1">
-                  <div className="h-2 w-2 rounded-full bg-primary-500" />
+                <div className="mt-1.5">
+                  <div className="h-3 w-3 rounded-full bg-gradient-metal shadow-metal" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-dark-900">
+                  <p className="text-sm font-semibold text-metal-900">
                     {activity.message}
                   </p>
-                  <p className="text-xs text-dark-500 mt-1">{activity.time}</p>
+                  <p className="text-xs text-metal-500 mt-1 font-medium">{activity.time}</p>
                 </div>
               </div>
             ))}

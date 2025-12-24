@@ -22,7 +22,7 @@ const MainLayout = () => {
   const title = pageTitles[location.pathname] || "MetalliSense";
 
   return (
-    <div className="flex h-screen bg-dark-50">
+    <div className="flex h-screen bg-gradient-to-br from-metal-50 via-metal-100 to-primary-50">
       <Sidebar />
       <div className="flex-1 ml-72 flex flex-col overflow-hidden">
         <TopBar title={title} />
