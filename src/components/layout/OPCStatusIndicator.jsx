@@ -67,42 +67,61 @@ const OPCStatusIndicator = () => {
       {/* Divider */}
       <div className="h-6 w-px bg-metal-300" />
 
-      {/* Action Buttons */}
-      <div className="flex gap-2">
-        {!status.connected ? (
-          <Button
-            variant="success"
-            size="sm"
-            onClick={handleConnect}
-            disabled={isLoading}
-            loading={isLoading}
-            className="!py-1.5 !px-4 flex items-center gap-2"
-          >
-            <Wifi className="w-4 h-4" />
-            <span>Connect</span>
-          </Button>
-        ) : (
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={handleDisconnect}
-            disabled={isLoading}
-            loading={isLoading}
-            className="!py-1.5 !px-4 flex items-center gap-2"
-          >
-            <WifiOff className="w-4 h-4" />
-            <span>Disconnect</span>
-          </Button>
-        )}
-      </div>
+      
+        <div className="flex gap-2">
+          {!status.connected ? (
+            <Button
+          variant="success"
+          size="sm"
+          onClick={handleConnect}
+          disabled={isLoading}
+          loading={isLoading}
+          className="!py-1.5 !px-4 flex items-center gap-2"
+            >
+          <Wifi className="w-4 h-4" />
+          <span>Connect</span>
+            </Button>
+          ) : (
+            <Button
+          variant="danger"
+          size="sm"
+          onClick={handleDisconnect}
+          disabled={isLoading}
+          loading={isLoading}
+          className="!py-1.5 !px-4 flex items-center gap-2"
+            >
+          <WifiOff className="w-4 h-4" />
+          <span>Disconnect</span>
+            </Button>
+          )}
+        </div>
 
-      {/* Server URL (if connected) */}
-      {status.connected && status.serverUrl && (
+       
+        
+        {/* Connection Animation Visualization */}
+      {status.connected && (
         <>
           <div className="h-6 w-px bg-metal-300" />
-          <span className="text-xs text-metal-600 font-mono bg-metal-50 px-3 py-1 rounded-lg">
-            {status.serverUrl}
-          </span>
+          <div className="flex items-center gap-2">
+       
+        {/* Flowing Data Particles */}
+        <div className="flex gap-1">
+          {[...Array(3)].map((_, i) => (
+            <div
+          key={i}
+          className="w-1 h-3 bg-primary-500 rounded-full animate-bounce"
+          style={{
+            animationDelay: `${i * 0.2}s`,
+            animationDuration: '1s'
+          }}
+            />
+          ))}
+        </div>
+        
+        <span className="text-xs font-medium text-primary-600">
+          Live Data
+        </span>
+          </div>
         </>
       )}
     </div>
