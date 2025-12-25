@@ -58,7 +58,7 @@ const AIAgent = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-dark-900">
-            🤖 AI Agent Analysis
+            AI Agent Analysis
           </h1>
           <p className="text-dark-600 mt-1">
             Coordinated AI agent with combined insights, quality assessment, and
@@ -88,7 +88,7 @@ const AIAgent = () => {
       {/* Synthetic Generator */}
       <SyntheticGenerator
         onDataGenerated={handleGenerate}
-        buttonText="🤖 Generate & Run AI Agent Analysis"
+        buttonText="Generate & Run AI Agent Analysis"
       />
 
       {/* Results */}

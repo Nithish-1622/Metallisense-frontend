@@ -1,5 +1,9 @@
 import api from "./api";
 
+// Get paginated training data (primary endpoint)
+export const getPaginatedTrainingData = (params) =>
+  api.get("/api/v2/training-data/paginated", { params });
+
 // Get all training data
 export const getAllTrainingData = (params) =>
   api.get("/api/v2/training-data", { params });
@@ -23,3 +27,7 @@ export const updateTrainingData = (id, data) =>
 // Delete training data
 export const deleteTrainingData = (id) =>
   api.delete(`/api/v2/training-data/${id}`);
+
+// Get visualization data (pre-aggregated)
+export const getTrainingDataVisualizations = (params) =>
+  api.get("/api/v2/training-data/visualizations", { params });
