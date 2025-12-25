@@ -484,7 +484,6 @@ const Dashboard = () => {
                           />
                         )
                       )}
-                      }
                     </Pie>
                     <Tooltip
                       contentStyle={{
@@ -533,7 +532,6 @@ const Dashboard = () => {
                           />
                         )
                       )}
-                      }
                     </Pie>
                     <Tooltip
                       contentStyle={{
