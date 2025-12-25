@@ -27,3 +27,7 @@ export const updateTrainingData = (id, data) =>
 // Delete training data
 export const deleteTrainingData = (id) =>
   api.delete(`/api/v2/training-data/${id}`);
+
+// Get visualization data (pre-aggregated)
+export const getTrainingDataVisualizations = (params) =>
+  api.get("/api/v2/training-data/visualizations", { params });

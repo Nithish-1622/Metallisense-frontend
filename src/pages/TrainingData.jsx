@@ -247,7 +247,7 @@ const TrainingData = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-metal bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-metal-900">
             Training Data Management
           </h1>
           <p className="text-metal-600 mt-2">
