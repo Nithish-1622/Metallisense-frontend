@@ -134,83 +134,119 @@ const Dashboard = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10"
         >
           {/* OPC Status Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">
-                  OPC Server
-                </p>
-                <p className="text-2xl font-light text-slate-800 mt-2">
-                  {opcStatus.connected ? "Online" : "Offline"}
-                </p>
+          <div className="bg-gradient-to-br from-emerald-50 to-white rounded-xl shadow-lg border border-emerald-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-emerald-100 p-3 rounded-lg">
+                <Activity
+                  size={28}
+                  className={
+                    opcStatus.connected ? "text-emerald-600" : "text-red-600"
+                  }
+                />
               </div>
-              <Activity
-                size={24}
-                className={
-                  opcStatus.connected ? "text-emerald-500" : "text-red-500"
-                }
-              />
-            </div>
-            <div className="flex items-center gap-2 mt-4">
               <div
-                className={`w-2 h-2 rounded-full ${
-                  opcStatus.connected ? "bg-emerald-500" : "bg-red-500"
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  opcStatus.connected
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-red-100 text-red-700"
                 }`}
-              />
-              <span className="text-xs text-slate-500">
+              >
+                {opcStatus.connected ? "ONLINE" : "OFFLINE"}
+              </div>
+            </div>
+            <div>
+              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                OPC Server Status
+              </p>
+              <p className="text-3xl font-bold text-slate-800">
                 {opcStatus.connected ? "Connected" : "Disconnected"}
-              </span>
+              </p>
             </div>
           </div>
 
           {/* Grades Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">
-                  Total Grades
-                </p>
-                <p className="text-2xl font-light text-slate-800 mt-2">
-                  {stats.totalGrades}
-                </p>
+          <div className="bg-gradient-to-br from-emerald-50 to-white rounded-xl shadow-lg border border-emerald-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-emerald-100 p-3 rounded-lg">
+                <FileCheck className="text-emerald-600" size={28} />
               </div>
-              <FileCheck className="text-emerald-500 text-2xl" size={24} />
+              <div className="text-right">
+                <p className="text-xs text-slate-500 font-medium">Active</p>
+              </div>
             </div>
-            <p className="text-xs text-slate-500 mt-4">
-              Grade specifications defined
-            </p>
+            <div>
+              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                Total Grades
+              </p>
+              <p className="text-3xl font-bold text-slate-800 mb-1">
+                {stats.totalGrades}
+              </p>
+              <p className="text-xs text-emerald-600 font-medium">
+                Grade specifications defined
+              </p>
+            </div>
           </div>
 
           {/* Readings Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">
-                  Total Readings
-                </p>
-                <p className="text-2xl font-light text-slate-800 mt-2">
-                  {stats.totalReadings}
+          <div className="bg-gradient-to-br from-emerald-50 to-white rounded-xl shadow-lg border border-emerald-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-emerald-100 p-3 rounded-lg">
+                <Database className="text-emerald-600" size={28} />
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-slate-500 font-medium">
+                  {loadingVisualizations
+                    ? "..."
+                    : visualizationData?.overview?.normalSamples?.toLocaleString() ||
+                      "0"}
                 </p>
               </div>
-              <Database className="text-emerald-500 text-2xl" size={24} />
             </div>
-            <p className="text-xs text-slate-500 mt-4">Spectrometer readings</p>
+            <div>
+              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                Training Samples
+              </p>
+              <p className="text-3xl font-bold text-slate-800 mb-1">
+                {loadingVisualizations
+                  ? "..."
+                  : visualizationData?.overview?.totalSamples?.toLocaleString() ||
+                    "0"}
+              </p>
+              <p className="text-xs text-emerald-600 font-medium">
+                Total training data samples
+              </p>
+            </div>
           </div>
 
           {/* Anomalies Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">
-                  Anomalies
-                </p>
-                <p className="text-2xl font-light text-slate-800 mt-2">
-                  {stats.totalAnomalies}
+          <div className="bg-gradient-to-br from-emerald-50 to-white rounded-xl shadow-lg border border-emerald-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-emerald-100 p-3 rounded-lg">
+                <LayoutDashboard className="text-emerald-600" size={28} />
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-slate-500 font-medium">
+                  {loadingVisualizations
+                    ? "..."
+                    : visualizationData?.overview?.severitySevere?.toLocaleString() ||
+                      "0"}
                 </p>
               </div>
-              <LayoutDashboard className="text-amber-500 text-2xl" size={24} />
             </div>
-            <p className="text-xs text-slate-500 mt-4">Detected anomalies</p>
+            <div>
+              <p className="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-1">
+                Deviated Samples
+              </p>
+              <p className="text-3xl font-bold text-slate-800 mb-1">
+                {loadingVisualizations
+                  ? "..."
+                  : visualizationData?.overview?.deviatedSamples?.toLocaleString() ||
+                    "0"}
+              </p>
+              <p className="text-xs text-emerald-600 font-medium">
+                Samples with deviations
+              </p>
+            </div>
           </div>
         </div>
 
@@ -665,36 +701,7 @@ const Dashboard = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* Fourth Row: Element Histogram */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-              <h3 className="text-lg font-medium text-slate-800 mb-4">
-                {selectedElement} Distribution Histogram
-              </h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={visualizationData.elementDistributions?.[
-                    selectedElement
-                  ]?.map((bucket) => ({
-                    range: bucket._id === "Other" ? "Other" : `${bucket._id}+`,
-                    count: bucket.count,
-                  }))}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="range" stroke="#64748b" />
-                  <YAxis stroke="#64748b" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "white",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: "8px",
-                    }}
-                  />
-                  <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Fifth Row: Severity Heatmap */}
+            {/* Fourth Row: Severity Heatmap */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
               <h3 className="text-lg font-medium text-slate-800 mb-4">
                 Severity Heatmap
