@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Activity,
   LogOut,
+  FileText,
 } from "lucide-react";
 import logo from "../../assets/Metallisense-logo.png";
 
@@ -21,6 +22,14 @@ const sidebarItems = [
     label: "Onboard Tour",
     icon: GraduationCap,
     isTour: true,
+    category: "core",
+  },
+  {
+    id: "technical-docs",
+    label: "Technical Documentation",
+    icon: FileText,
+    isExternalLink: true,
+    url: "https://drive.google.com/uc?export=download&id=1t5t6FkgSQS77V5sxvMuya3mn057dNp2B",
     category: "core",
   },
   {
@@ -140,38 +149,89 @@ const Sidebar = ({ setRunTour }) => {
           </div>
 
           {/* Menu Items with custom scrollbar */}
-          <div className="flex-1 px-4 py-4 overflow-y-auto custom-scrollbar">
-            <div className="space-y-1">
+          <div className="flex-1 px-4 py-3 overflow-y-auto custom-scrollbar">
+            <div className="space-y-8">
               {/* Core Operations */}
-              <div className="pb-2">
-                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-4 px-2">
+              <div className="pb-1">
+                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-2 px-2">
                   Core Operations
                 </div>
 
                 {coreItems.map((item) => {
-                if (item.isTour) {
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setRunTour(true);
-                        closeSidebar();
-                      }}
-                      className="w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
-                    >
-                      <item.icon size={18} className="text-metal-500" />
-                      <span className="text-xs">{item.label}</span>
-                    </button>
-                  );
-                }
+                  if (item.isTour) {
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setRunTour(true);
+                          closeSidebar();
+                        }}
+                        className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
+                      >
+                        <item.icon size={18} className="text-metal-500" />
+                        <span className="text-xs">{item.label}</span>
+                      </button>
+                    );
+                  }
 
-                return (
+                  if (item.isExternalLink) {
+                    return (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={closeSidebar}
+                        className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
+                      >
+                        <item.icon size={18} className="text-metal-500" />
+                        <span className="text-xs">{item.label}</span>
+                      </a>
+                    );
+                  }
+
+                  return (
+                    <NavLink
+                      key={item.id}
+                      to={item.path}
+                      onClick={closeSidebar}
+                      className={({ isActive }) =>
+                        `w-full text-left flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200  ${
+                          isActive
+                            ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
+                            : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <item.icon
+                            size={18}
+                            className={
+                              isActive ? "text-white" : "text-metal-500"
+                            }
+                          />
+                          <span className="text-xs">{item.label}</span>
+                        </>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </div>
+
+              {/* AI & Analytics */}
+              <div className="pb-1">
+                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-2 px-2">
+                  AI & Analytics
+                </div>
+
+                {aiItems.map((item) => (
                   <NavLink
                     key={item.id}
                     to={item.path}
                     onClick={closeSidebar}
                     className={({ isActive }) =>
-                      `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200  ${
+                      `w-full text-left flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                         isActive
                           ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
                           : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
@@ -188,72 +248,39 @@ const Sidebar = ({ setRunTour }) => {
                       </>
                     )}
                   </NavLink>
-                );
-                })}
-              </div>
-
-              {/* AI & Analytics */}
-              <div className="pb-2">
-                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-4 px-2">
-                AI & Analytics
-              </div>
-
-              {aiItems.map((item) => (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  onClick={closeSidebar}
-                  className={({ isActive }) =>
-                    `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
-                        : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <item.icon
-                        size={18}
-                        className={isActive ? "text-white" : "text-metal-500"}
-                      />
-                      <span className="text-xs">{item.label}</span>
-                    </>
-                  )}
-                </NavLink>
-              ))}
+                ))}
               </div>
 
               {/* Data Management */}
               <div>
-                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-3 px-2">
-                Data Management
-              </div>
+                <div className="text-xs font-bold text-metal-500 uppercase tracking-wider mb-2 px-2">
+                  Data Management
+                </div>
 
-              {dataItems.map((item) => (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  onClick={closeSidebar}
-                  className={({ isActive }) =>
-                    `w-full text-left flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
-                        : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <item.icon
-                        size={18}
-                        className={isActive ? "text-white" : "text-metal-500"}
-                      />
-                      <span className="text-xs">{item.label}</span>
-                    </>
-                  )}
-                </NavLink>
-              ))}
+                {dataItems.map((item) => (
+                  <NavLink
+                    key={item.id}
+                    to={item.path}
+                    onClick={closeSidebar}
+                    className={({ isActive }) =>
+                      `w-full text-left flex items-center gap-3 p-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25"
+                          : "text-metal-700 hover:bg-emerald-50 hover:text-emerald-700"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <item.icon
+                          size={18}
+                          className={isActive ? "text-white" : "text-metal-500"}
+                        />
+                        <span className="text-xs">{item.label}</span>
+                      </>
+                    )}
+                  </NavLink>
+                ))}
               </div>
             </div>
           </div>
@@ -271,8 +298,6 @@ const Sidebar = ({ setRunTour }) => {
                 OPC Connected • AI Ready
               </div>
             </div>
-
-           
           </div>
         </div>
       </aside>

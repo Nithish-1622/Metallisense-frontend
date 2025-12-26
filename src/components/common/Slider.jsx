@@ -13,7 +13,7 @@ const Slider = ({
   containerClassName = "",
 }) => {
   return (
-    <div className={clsx("mb-4", containerClassName)}>
+    <div className={clsx("mb-4 ", containerClassName)}>
       <div className="flex justify-between items-center mb-2">
         {label && (
           <label className="block text-sm font-medium text-dark-700">
