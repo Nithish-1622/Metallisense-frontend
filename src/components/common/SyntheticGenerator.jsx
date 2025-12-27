@@ -6,6 +6,7 @@ import Button from "./Button";
 import Card from "./Card";
 import { getAllGrades, getGradeComposition } from "../../services/gradeService";
 import { generateSyntheticReading } from "../../services/opcService";
+import { useOPC } from "../../context/OPCContext";
 import toast from "react-hot-toast";
 
 /**
@@ -26,6 +27,7 @@ const SyntheticGenerator = ({
   const [generating, setGenerating] = useState(false);
   const [loadingGrades, setLoadingGrades] = useState(true);
   const [loadingElements, setLoadingElements] = useState(false);
+  const { status: opcStatus } = useOPC();
 
   // Fetch all grade names on mount
   useEffect(() => {
@@ -84,6 +86,13 @@ const SyntheticGenerator = ({
   };
 
   const handleGenerate = async () => {
+    console.log("OPC Status:", opcStatus);
+    if (!opcStatus?.connected) {
+      toast.error(
+        "OPC Server must be connected to generate synthetic readings"
+      );
+      return;
+    }
     if (!selectedGrade) {
       toast.error("Please select a metal grade");
       return;
@@ -210,6 +219,7 @@ const SyntheticGenerator = ({
             onClick={handleGenerate}
             loading={generating}
             disabled={
+              !opcStatus?.connected ||
               !selectedGrade ||
               deviationElements.length === 0 ||
               loadingElements
@@ -219,8 +229,19 @@ const SyntheticGenerator = ({
             {buttonText}
           </Button>
 
+          {/* OPC Connection Warning */}
+          {!opcStatus?.connected && (
+            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-red-800">
+                <span className="font-semibold">OPC Server Not Connected:</span>{" "}
+                Please connect to the OPC server to generate synthetic readings.
+              </p>
+            </div>
+          )}
+
           {/* Info */}
-          {deviationElements.length > 0 && (
+          {deviationElements.length > 0 && opcStatus?.connected && (
             <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
                 <span className="font-semibold">Selected elements:</span>{" "}

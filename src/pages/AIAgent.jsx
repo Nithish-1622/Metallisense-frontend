@@ -221,76 +221,132 @@ const AIAgent = () => {
           {/* Anomaly Agent Analysis */}
           {result.aiAnalysis.agentResponse?.anomaly_agent && (
             <Card title="Anomaly Detection Analysis">
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-dark-50 rounded-lg">
-                    <p className="text-sm text-dark-600 mb-1">Anomaly Score</p>
-                    <p className="text-xl font-bold text-dark-900">
-                      {result.aiAnalysis.agentResponse.anomaly_agent
-                        .anomaly_score !== null
-                        ? result.aiAnalysis.agentResponse.anomaly_agent.anomaly_score.toFixed(
-                            3
-                          )
-                        : "N/A"}
-                    </p>
-                  </div>
-                  <div className="p-4 bg-dark-50 rounded-lg">
-                    <p className="text-sm text-dark-600 mb-1">Is Anomaly</p>
-                    <Badge
-                      variant={
-                        result.aiAnalysis.agentResponse.anomaly_agent.is_anomaly
-                          ? "danger"
-                          : "success"
-                      }
+              {(() => {
+                const anomaly = result.aiAnalysis.agentResponse.anomaly_agent;
+                const severity = anomaly.severity;
+
+                const severityStyles = {
+                  LOW: {
+                    bg: "bg-green-50",
+                    border: "border-green-300",
+                    text: "text-green-700",
+                    badge: "success",
+                    bar: "bg-green-500",
+                  },
+                  MEDIUM: {
+                    bg: "bg-yellow-50",
+                    border: "border-yellow-300",
+                    text: "text-yellow-700",
+                    badge: "warning",
+                    bar: "bg-yellow-500",
+                  },
+                  HIGH: {
+                    bg: "bg-red-50",
+                    border: "border-red-300",
+                    text: "text-red-700",
+                    badge: "danger",
+                    bar: "bg-red-500",
+                  },
+                };
+
+                const style = severityStyles[severity] || severityStyles.MEDIUM;
+
+                return (
+                  <div className="space-y-6">
+                    {/* Severity Banner */}
+                    <div
+                      className={`p-5 rounded-xl border-2 ${style.bg} ${style.border}`}
                     >
-                      {result.aiAnalysis.agentResponse.anomaly_agent.is_anomaly
-                        ? "Yes"
-                        : "No"}
-                    </Badge>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-dark-600 mb-1">
+                            Anomaly Severity
+                          </p>
+                          <Badge
+                            variant={style.badge}
+                            className="text-lg px-4 py-1"
+                          >
+                            {severity}
+                          </Badge>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-sm text-dark-600 mb-1">
+                            Anomaly Score
+                          </p>
+                          <p className={`text-3xl font-bold ${style.text}`}>
+                            {anomaly.anomaly_score?.toFixed(3) || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Score Bar */}
+                      <div className="mt-4">
+                        <div className="h-2 w-full bg-dark-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full ${style.bar}`}
+                            style={{
+                              width: `${Math.min(
+                                (anomaly.anomaly_score || 0) * 100,
+                                100
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Metrics */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Confidence */}
+                      <div className="p-5 bg-dark-50 border border-dark-200 rounded-lg">
+                        <p className="text-sm text-dark-600 mb-2">
+                          Detection Confidence
+                        </p>
+
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 bg-dark-200 rounded-full h-3">
+                            <div
+                              className={`h-3 rounded-full ${style.bar}`}
+                              style={{
+                                width: `${(anomaly.confidence || 0) * 100}%`,
+                              }}
+                            />
+                          </div>
+                          <span className={`text-xl font-bold ${style.text}`}>
+                            {((anomaly.confidence || 0) * 100).toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Status */}
+                      <div className="p-5 bg-dark-50 border border-dark-200 rounded-lg">
+                        <p className="text-sm text-dark-600 mb-2">
+                          System Interpretation
+                        </p>
+                        <p className="text-sm font-medium text-dark-900">
+                          {severity === "HIGH"
+                            ? "Critical deviation detected"
+                            : severity === "MEDIUM"
+                            ? "Moderate deviation observed"
+                            : "Composition within acceptable variance"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Explanation */}
+                    {anomaly.explanation && (
+                      <div
+                        className={`p-5 rounded-lg border-l-4 ${style.bg} ${style.border}`}
+                      >
+                        <p className={`text-sm ${style.text}`}>
+                          {anomaly.explanation}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div className="p-4 bg-dark-50 rounded-lg">
-                    <p className="text-sm text-dark-600 mb-1">Severity</p>
-                    <Badge
-                      variant={
-                        result.aiAnalysis.agentResponse.anomaly_agent
-                          .severity === "LOW"
-                          ? "success"
-                          : result.aiAnalysis.agentResponse.anomaly_agent
-                              .severity === "MEDIUM"
-                          ? "warning"
-                          : result.aiAnalysis.agentResponse.anomaly_agent
-                              .severity === "HIGH"
-                          ? "danger"
-                          : "info"
-                      }
-                    >
-                      {result.aiAnalysis.agentResponse.anomaly_agent.severity}
-                    </Badge>
-                  </div>
-                  <div className="p-4 bg-dark-50 rounded-lg">
-                    <p className="text-sm text-dark-600 mb-1">Confidence</p>
-                    <p className="text-xl font-bold text-dark-900">
-                      {result.aiAnalysis.agentResponse.anomaly_agent
-                        .confidence !== null
-                        ? `${(
-                            result.aiAnalysis.agentResponse.anomaly_agent
-                              .confidence * 100
-                          ).toFixed(1)}%`
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-                {result.aiAnalysis.agentResponse.anomaly_agent.explanation && (
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-900">
-                      {
-                        result.aiAnalysis.agentResponse.anomaly_agent
-                          .explanation
-                      }
-                    </p>
-                  </div>
-                )}
-              </div>
+                );
+              })()}
             </Card>
           )}
 

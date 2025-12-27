@@ -1,12 +1,19 @@
 import api from "./api";
 
 // AI Health Check
-export const checkAIHealth = () => api.get("/api/v2/ai/health");
+export const checkAIHealth = () => api.get("/ai/health");
+
+// Anomaly Detection - Direct endpoint
+export const predictAnomaly = async (data) => {
+  console.log("🔍 Anomaly Predict Request:", data);
+  const response = await api.post("/ai/anomaly/predict", data);
+  console.log("✅ Anomaly Predict Response:", response.data);
+  return response;
+};
 
 // Individual Analysis (Anomaly + Alloy)
 export const analyzeIndividual = (data) =>
-  api.post("/api/v2/ai/individual/analyze", data);
+  api.post("/ai/individual/analyze", data);
 
 // AI Agent Analysis
-export const analyzeAgent = (data) =>
-  api.post("/api/v2/ai/agent/analyze", data);
+export const analyzeAgent = (data) => api.post("/ai/agent/analyze", data);

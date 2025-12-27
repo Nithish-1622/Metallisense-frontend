@@ -46,10 +46,7 @@ export const OPCProvider = ({ children }) => {
       }
     };
 
-    // Initial check
-    checkStatus();
-
-    // Poll every 3 seconds
+    // Poll every 3 seconds (no initial check to avoid auto-connect)
     const interval = setInterval(checkStatus, OPC_POLL_INTERVAL);
 
     return () => clearInterval(interval);

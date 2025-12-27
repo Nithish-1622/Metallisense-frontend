@@ -18,7 +18,7 @@ const Recommendation = () => {
       const requestData = {
         metalGrade: reading.metalGrade || params.metalGrade,
         deviationElements:
-          reading.deviationElements || params.deviationElements,
+          reading.deviationElements || params.deviationElements,                                                                
         deviationPercentage:
           reading.deviationPercentage || params.deviationPercentage,
       };
