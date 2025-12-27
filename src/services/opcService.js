@@ -1,14 +1,14 @@
 import api from "./api";
 
 // OPC Status
-export const getOPCStatus = () => api.get("/api/v2/synthetic/opc-status");
+export const getOPCStatus = () => api.get("/synthetic/opc-status");
 
 // OPC Connect
-export const connectOPC = () => api.post("/api/v2/synthetic/opc-connect");
+export const connectOPC = () => api.post("/synthetic/opc-connect");
 
 // OPC Disconnect
-export const disconnectOPC = () => api.post("/api/v2/synthetic/opc-disconnect");
+export const disconnectOPC = () => api.post("/synthetic/opc-disconnect");
 
 // Generate Synthetic Reading
 export const generateSyntheticReading = (data) =>
-  api.post("/api/v2/synthetic/generate-synthetic", data);
+  api.post("/synthetic/generate-synthetic", data);

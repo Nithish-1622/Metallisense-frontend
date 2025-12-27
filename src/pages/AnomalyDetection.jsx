@@ -4,7 +4,7 @@ import Card from "../components/common/Card";
 import Badge from "../components/common/Badge";
 import Table from "../components/common/Table";
 import SyntheticGenerator from "../components/common/SyntheticGenerator";
-import { analyzeIndividual } from "../services/aiService";
+import { predictAnomaly } from "../services/aiService";
 import toast from "react-hot-toast";
 import { formatPercentage } from "../utils/formatters";
 
@@ -23,8 +23,8 @@ const AnomalyDetection = () => {
   const performAnalysis = async (reading) => {
     setAnalyzing(true);
     try {
-      const response = await analyzeIndividual({
-        metalGrade: reading.metalGrade,
+      const response = await predictAnomaly({
+        grade: reading.metalGrade,
         composition: reading.composition,
       });
 
@@ -32,9 +32,11 @@ const AnomalyDetection = () => {
         const result = response.data.data || response.data;
         setAnalysisResult(result);
 
-        const anomalyStatus = result.anomalyDetection?.isAnomaly
-          ? "Anomaly Detected"
-          : "No Anomaly";
+        const severity = result.severity || "NORMAL";
+        const anomalyStatus =
+          severity === "HIGH" || severity === "MEDIUM"
+            ? `Anomaly Detected (${severity})`
+            : "No Anomaly";
         toast.success(`Analysis complete: ${anomalyStatus}`);
       }
     } catch (error) {
@@ -199,20 +201,36 @@ const AnomalyDetection = () => {
                   <p className="text-sm font-medium text-dark-600 mb-3">
                     Anomaly Status
                   </p>
-                  {analysisResult.anomalyDetection?.isAnomaly ||
-                  analysisResult.anomalyDetection?.is_anomaly ? (
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-8 h-8 text-red-600" />
-                      <span className="text-lg font-bold text-red-600">
-                        Anomaly Detected
-                      </span>
+                  {analysisResult.severity === "HIGH" ||
+                  analysisResult.severity === "MEDIUM" ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-8 h-8 text-red-600" />
+                        <span className="text-lg font-bold text-red-600">
+                          Anomaly Detected
+                        </span>
+                      </div>
+                      <Badge
+                        variant={
+                          analysisResult.severity === "HIGH"
+                            ? "danger"
+                            : "warning"
+                        }
+                      >
+                        {analysisResult.severity}
+                      </Badge>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-8 h-8 text-green-600" />
-                      <span className="text-lg font-bold text-green-600">
-                        Normal
-                      </span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-8 h-8 text-green-600" />
+                        <span className="text-lg font-bold text-green-600">
+                          Normal
+                        </span>
+                      </div>
+                      <Badge variant="success">
+                        {analysisResult.severity || "NORMAL"}
+                      </Badge>
                     </div>
                   )}
                 </div>
@@ -223,54 +241,33 @@ const AnomalyDetection = () => {
                     Anomaly Score
                   </p>
                   <p className="text-3xl font-bold text-dark-900">
-                    {(
-                      analysisResult.anomalyDetection?.anomalyScore ||
-                      analysisResult.anomalyDetection?.anomaly_score ||
-                      0
-                    ).toFixed(2)}
+                    {(analysisResult.anomaly_score || 0).toFixed(2)}
                   </p>
                   <div className="mt-3 w-full bg-dark-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full ${
-                        (analysisResult.anomalyDetection?.anomalyScore ||
-                          analysisResult.anomalyDetection?.anomaly_score ||
-                          0) > 0.5
+                        (analysisResult.anomaly_score || 0) > 0.5
                           ? "bg-red-500"
                           : "bg-green-500"
                       }`}
                       style={{
-                        width: `${
-                          (analysisResult.anomalyDetection?.anomalyScore ||
-                            analysisResult.anomalyDetection?.anomaly_score ||
-                            0) * 100
-                        }%`,
+                        width: `${Math.min(
+                          (analysisResult.anomaly_score || 0) * 100,
+                          100
+                        )}%`,
                       }}
                     />
                   </div>
                 </div>
 
-                {/* Confidence */}
+                {/* Message */}
                 <div className="p-6 bg-dark-50 rounded-lg">
                   <p className="text-sm font-medium text-dark-600 mb-2">
-                    Confidence
+                    Analysis Message
                   </p>
-                  <p className="text-3xl font-bold text-dark-900">
-                    {(
-                      (analysisResult.anomalyDetection?.confidence || 0) * 100
-                    ).toFixed(1)}
-                    %
+                  <p className="text-sm text-dark-900">
+                    {analysisResult.message || "No message available"}
                   </p>
-                  <div className="mt-3 w-full bg-dark-200 rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full bg-primary-500"
-                      style={{
-                        width: `${
-                          (analysisResult.anomalyDetection?.confidence || 0) *
-                          100
-                        }%`,
-                      }}
-                    />
-                  </div>
                 </div>
               </div>
 
