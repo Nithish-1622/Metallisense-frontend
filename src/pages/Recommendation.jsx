@@ -19,7 +19,7 @@ const Recommendation = () => {
 
   const handleGenerate = async (reading, params) => {
     console.log("handleGenerate called with:", { reading, params });
-    
+
     setAiExplanation(null); // Reset AI explanation when new data is generated
     setAudioUrl(null);
     setIsPlaying(false);
@@ -29,7 +29,7 @@ const Recommendation = () => {
       const requestData = {
         metalGrade: reading.metalGrade || params.metalGrade,
         deviationElements:
-          reading.deviationElements || params.deviationElements,                                                                
+          reading.deviationElements || params.deviationElements,
         deviationPercentage:
           reading.deviationPercentage || params.deviationPercentage,
       };
@@ -77,29 +77,32 @@ const Recommendation = () => {
         anomalyResult: {}, // Empty object instead of null
         alloyResult: result.aiAnalysis?.alloyRecommendation || {},
       };
-      
+
       console.log("Sending to AI explain endpoint:", payload);
 
       const response = await explainResult(payload);
-      
+
       console.log("Response received:", response.data);
 
-      const explanation = response.data?.data?.geminiExplanation?.explanation || 
-                         response.data?.geminiExplanation?.explanation || 
-                         "AI explanation unavailable";
-      
+      const explanation =
+        response.data?.data?.geminiExplanation?.explanation ||
+        response.data?.geminiExplanation?.explanation ||
+        "AI explanation unavailable";
+
       setAiExplanation(explanation);
-      
+
       // Handle audio if present
       const audioData = response.data?.data?.audio || response.data?.audio;
       if (audioData && audioData.audio) {
         try {
           const byteCharacters = atob(audioData.audio);
-          const byteArray = new Uint8Array(Array.from(byteCharacters).map(char => char.charCodeAt(0)));
-          const blob = new Blob([byteArray], { type: 'audio/mpeg' });
+          const byteArray = new Uint8Array(
+            Array.from(byteCharacters).map((char) => char.charCodeAt(0))
+          );
+          const blob = new Blob([byteArray], { type: "audio/mpeg" });
           const url = URL.createObjectURL(blob);
           setAudioUrl(url);
-          
+
           if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current = null;
@@ -110,17 +113,19 @@ const Recommendation = () => {
       } else {
         setAudioUrl(null);
       }
-      
+
       // Show warning if Gemini API has issues
-      if (response.data?.status === 'warning' && response.data?.warning) {
+      if (response.data?.status === "warning" && response.data?.warning) {
         console.warn("Gemini API warning:", response.data.warning);
       }
-      
+
       toast.success("AI explanation generated successfully");
     } catch (error) {
       console.error("Failed to get AI explanation:", error);
       console.error("Error response:", error.response?.data);
-      toast.error(error.response?.data?.message || "Failed to generate AI explanation");
+      toast.error(
+        error.response?.data?.message || "Failed to generate AI explanation"
+      );
     } finally {
       setLoadingExplanation(false);
     }
@@ -140,16 +145,16 @@ const Recommendation = () => {
     } else {
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
-      
+
       audio.onended = () => {
         setIsPlaying(false);
       };
-      
+
       audio.onerror = () => {
         toast.error("Failed to play audio");
         setIsPlaying(false);
       };
-      
+
       audio.play();
       setIsPlaying(true);
     }
@@ -229,47 +234,6 @@ const Recommendation = () => {
               </div>
             </div>
           )}
-
-          {/* Predicted Grade & Confidence */}
-          <Card title="Predicted Grade">
-            <div className="text-center p-8">
-              <h2 className="text-5xl font-bold text-primary-600 mb-2 font-mono">
-                {result.aiAnalysis.alloyRecommendation.predicted_grade || "N/A"}
-              </h2>
-
-              {result.aiAnalysis.alloyRecommendation.confidence !== null && (
-                <div className="mt-6 max-w-md mx-auto">
-                  <p className="text-sm text-dark-600 mb-3 font-medium">
-                    Confidence Level
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 bg-dark-200 rounded-full h-6 overflow-hidden">
-                      <div
-                        className="h-6 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500"
-                        style={{
-                          width: `${
-                            (result.aiAnalysis.alloyRecommendation.confidence ||
-                              0) * 100
-                          }%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-3xl font-bold text-primary-600 min-w-[80px] text-right">
-                      {formatConfidence(
-                        result.aiAnalysis.alloyRecommendation.confidence
-                      )}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {result.aiAnalysis.alloyRecommendation.confidence === null && (
-                <p className="text-dark-500 mt-4">
-                  Confidence data unavailable
-                </p>
-              )}
-            </div>
-          </Card>
 
           {/* Recommended Additions */}
           {result.aiAnalysis.alloyRecommendation.recommended_additions &&
@@ -457,52 +421,67 @@ const Recommendation = () => {
                             className="flex items-center justify-between p-2 bg-yellow-50 rounded text-sm"
                           >
                             <span className="font-mono font-bold text-dark-900">
+                              {/* AI Explanation Button */}
+                              <div className="flex justify-center">
+                                <Button
+                                  onClick={handleGetAIExplanation}
+                                  loading={loadingExplanation}
+                                  disabled={loadingExplanation}
+                                  className="w-full md:w-auto"
+                                  variant="success"
+                                >
+                                  <Sparkles className="w-4 h-4 mr-2" />
+                                  {aiExplanation
+                                    ? "Regenerate AI Reasoning"
+                                    : "Get AI Reasoning"}
+                                </Button>
+                              </div>
 
-          {/* AI Explanation Button */}
-          <div className="flex justify-center">
-            <Button
-              onClick={handleGetAIExplanation}
-              loading={loadingExplanation}
-              disabled={loadingExplanation}
-              className="w-full md:w-auto"
-              variant="success"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              {aiExplanation ? "Regenerate AI Reasoning" : "Get AI Reasoning"}
-            </Button>
-          </div>
+                              {/* AI Explanation Display */}
+                              {aiExplanation && (
+                                <Card className="border-2 border-emerald-200">
+                                  <div className="space-y-4">
+                                    <div
+                                      className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
+                                      onClick={
+                                        audioUrl ? handlePlayAudio : undefined
+                                      }
+                                      title={
+                                        audioUrl
+                                          ? isPlaying
+                                            ? "Click to pause audio"
+                                            : "Click to play audio explanation"
+                                          : "Audio not available"
+                                      }
+                                    >
+                                      <Sparkles className="w-5 h-5" />
+                                      <h3 className="text-lg font-semibold text-dark-900">
+                                        Gemini AI Summary
+                                      </h3>
+                                      {audioUrl &&
+                                        (isPlaying ? (
+                                          <VolumeX className="w-5 h-5 text-emerald-600" />
+                                        ) : (
+                                          <Volume2 className="w-5 h-5 text-emerald-600" />
+                                        ))}
+                                      <Badge
+                                        variant="success"
+                                        className="ml-auto"
+                                      >
+                                        Gemini Powered
+                                      </Badge>
+                                    </div>
 
-          {/* AI Explanation Display */}
-          {aiExplanation && (
-            <Card className="border-2 border-emerald-200">
-              <div className="space-y-4">
-                <div 
-                  className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
-                  onClick={audioUrl ? handlePlayAudio : undefined}
-                  title={audioUrl ? (isPlaying ? 'Click to pause audio' : 'Click to play audio explanation') : 'Audio not available'}
-                >
-                  <Sparkles className="w-5 h-5" />
-                  <h3 className="text-lg font-semibold text-dark-900">
-                    Gemini AI Summary
-                  </h3>
-                  {audioUrl && (
-                    isPlaying ? <VolumeX className="w-5 h-5 text-emerald-600" /> : <Volume2 className="w-5 h-5 text-emerald-600" />
-                  )}
-                  <Badge variant="success" className="ml-auto">
-                    Gemini Powered
-                  </Badge>
-                </div>
-                
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
-                  <div className="prose prose-sm max-w-none">
-                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
-                      {aiExplanation}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          )}
+                                    <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
+                                      <div className="prose prose-sm max-w-none">
+                                        <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
+                                          {aiExplanation}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Card>
+                              )}
                               {deviation.element}
                             </span>
                             <div className="flex items-center gap-3 text-dark-700">

@@ -19,7 +19,7 @@ const AIAgent = () => {
 
   const handleGenerate = async (reading, params) => {
     console.log("AI Agent: handleGenerate called with:", { reading, params });
-    
+
     setAiExplanation(null); // Reset AI explanation when new data is generated
     setAudioUrl(null);
     setIsPlaying(false);
@@ -77,29 +77,32 @@ const AIAgent = () => {
         anomalyResult: result.aiAnalysis?.anomalyDetection || {},
         alloyResult: result.aiAnalysis?.alloyRecommendation || {},
       };
-      
+
       console.log("Sending to AI explain endpoint:", payload);
 
       const response = await explainResult(payload);
-      
+
       console.log("Response received:", response.data);
 
-      const explanation = response.data?.data?.geminiExplanation?.explanation || 
-                         response.data?.geminiExplanation?.explanation || 
-                         "AI explanation unavailable";
-      
+      const explanation =
+        response.data?.data?.geminiExplanation?.explanation ||
+        response.data?.geminiExplanation?.explanation ||
+        "AI explanation unavailable";
+
       setAiExplanation(explanation);
-      
+
       // Handle audio if present
       const audioData = response.data?.data?.audio || response.data?.audio;
       if (audioData && audioData.audio) {
         try {
           const byteCharacters = atob(audioData.audio);
-          const byteArray = new Uint8Array(Array.from(byteCharacters).map(char => char.charCodeAt(0)));
-          const blob = new Blob([byteArray], { type: 'audio/mpeg' });
+          const byteArray = new Uint8Array(
+            Array.from(byteCharacters).map((char) => char.charCodeAt(0))
+          );
+          const blob = new Blob([byteArray], { type: "audio/mpeg" });
           const url = URL.createObjectURL(blob);
           setAudioUrl(url);
-          
+
           if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current = null;
@@ -110,17 +113,19 @@ const AIAgent = () => {
       } else {
         setAudioUrl(null);
       }
-      
+
       // Show warning if Gemini API has issues
-      if (response.data?.status === 'warning' && response.data?.warning) {
+      if (response.data?.status === "warning" && response.data?.warning) {
         console.warn("Gemini API warning:", response.data.warning);
       }
-      
+
       toast.success("AI explanation generated successfully");
     } catch (error) {
       console.error("Failed to get AI explanation:", error);
       console.error("Error response:", error.response?.data);
-      toast.error(error.response?.data?.message || "Failed to generate AI explanation");
+      toast.error(
+        error.response?.data?.message || "Failed to generate AI explanation"
+      );
     } finally {
       setLoadingExplanation(false);
     }
@@ -140,16 +145,16 @@ const AIAgent = () => {
     } else {
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
-      
+
       audio.onended = () => {
         setIsPlaying(false);
       };
-      
+
       audio.onerror = () => {
         toast.error("Failed to play audio");
         setIsPlaying(false);
       };
-      
+
       audio.play();
       setIsPlaying(true);
     }
@@ -229,86 +234,6 @@ const AIAgent = () => {
               </div>
             </div>
           )}
-
-          {/* Quality Assessment Overview */}
-          <Card title="Quality Assessment">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Overall Status */}
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                <p className="text-sm font-medium text-blue-700 mb-2">
-                  Overall Status
-                </p>
-                <p
-                  className={`text-2xl font-bold ${
-                    result.aiAnalysis.agentResponse?.quality_assessment
-                      ?.overall_status === "ACCEPTABLE"
-                      ? "text-green-600"
-                      : result.aiAnalysis.agentResponse?.quality_assessment
-                          ?.overall_status === "UNACCEPTABLE"
-                      ? "text-red-600"
-                      : "text-yellow-600"
-                  }`}
-                >
-                  {result.aiAnalysis.agentResponse?.quality_assessment
-                    ?.overall_status || "N/A"}
-                </p>
-              </div>
-
-              {/* Compliance Score */}
-              <div className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-                <p className="text-sm font-medium text-purple-700 mb-2">
-                  Compliance Score
-                </p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {result.aiAnalysis.agentResponse?.quality_assessment
-                    ?.compliance_score
-                    ? `${result.aiAnalysis.agentResponse.quality_assessment.compliance_score.toFixed(
-                        1
-                      )}%`
-                    : "N/A"}
-                </p>
-              </div>
-
-              {/* Risk Level */}
-              <div className="p-5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-                <p className="text-sm font-medium text-orange-700 mb-2">
-                  Risk Level
-                </p>
-                <Badge
-                  variant={
-                    result.aiAnalysis.agentResponse?.risk_level === "LOW"
-                      ? "success"
-                      : result.aiAnalysis.agentResponse?.risk_level === "MEDIUM"
-                      ? "warning"
-                      : result.aiAnalysis.agentResponse?.risk_level === "HIGH"
-                      ? "danger"
-                      : "info"
-                  }
-                  className="text-lg"
-                >
-                  {result.aiAnalysis.agentResponse?.risk_level || "UNKNOWN"}
-                </Badge>
-              </div>
-
-              {/* Human Approval */}
-              <div className="p-5 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg border border-pink-200">
-                <p className="text-sm font-medium text-pink-700 mb-2">
-                  Human Approval
-                </p>
-                <p
-                  className={`text-lg font-bold ${
-                    result.aiAnalysis.agentResponse?.human_approval_required
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }`}
-                >
-                  {result.aiAnalysis.agentResponse?.human_approval_required
-                    ? "⚠️ Required"
-                    : "✓ Not Required"}
-                </p>
-              </div>
-            </div>
-          </Card>
 
           {/* Final Recommendation */}
           {result.aiAnalysis.agentResponse?.final_recommendation && (
@@ -731,23 +656,32 @@ const AIAgent = () => {
           {aiExplanation && (
             <Card className="border-2 border-emerald-200">
               <div className="space-y-4">
-                <div 
+                <div
                   className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
                   onClick={audioUrl ? handlePlayAudio : undefined}
-                  title={audioUrl ? (isPlaying ? 'Click to pause audio' : 'Click to play audio explanation') : 'Audio not available'}
+                  title={
+                    audioUrl
+                      ? isPlaying
+                        ? "Click to pause audio"
+                        : "Click to play audio explanation"
+                      : "Audio not available"
+                  }
                 >
                   <Sparkles className="w-5 h-5" />
                   <h3 className="text-lg font-semibold text-dark-900">
                     Gemini AI Summary
                   </h3>
-                  {audioUrl && (
-                    isPlaying ? <VolumeX className="w-5 h-5 text-emerald-600" /> : <Volume2 className="w-5 h-5 text-emerald-600" />
-                  )}
+                  {audioUrl &&
+                    (isPlaying ? (
+                      <VolumeX className="w-5 h-5 text-emerald-600" />
+                    ) : (
+                      <Volume2 className="w-5 h-5 text-emerald-600" />
+                    ))}
                   <Badge variant="success" className="ml-auto">
                     Gemini Powered
                   </Badge>
                 </div>
-                
+
                 <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
                   <div className="prose prose-sm max-w-none">
                     <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
