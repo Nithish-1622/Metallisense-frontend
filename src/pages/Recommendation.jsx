@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { formatPercentage, formatConfidence } from "../utils/formatters";
 
 const Recommendation = () => {
+  const [syntheticReading, setSyntheticReading] = useState(null); // Store synthetic data separately
   const [result, setResult] = useState(null);
   const [aiAvailable, setAIAvailable] = useState(true);
   const [aiExplanation, setAiExplanation] = useState(null);
@@ -20,18 +21,18 @@ const Recommendation = () => {
   const handleGenerate = async (reading, params) => {
     console.log("handleGenerate called with:", { reading, params });
 
+    // Store the synthetic reading from Step 1
+    setSyntheticReading(reading);
+
     setAiExplanation(null); // Reset AI explanation when new data is generated
     setAudioUrl(null);
     setIsPlaying(false);
 
     try {
-      // Use params which contains the request data, or reading if it has the needed properties
+      // New API format: pass metalGrade and composition
       const requestData = {
-        metalGrade: reading.metalGrade || params.metalGrade,
-        deviationElements:
-          reading.deviationElements || params.deviationElements,
-        deviationPercentage:
-          reading.deviationPercentage || params.deviationPercentage,
+        metalGrade: reading.metalGrade,
+        composition: reading.composition, // Pass the actual composition from synthetic reading
       };
 
       console.log("Sending to AI:", requestData);
@@ -64,7 +65,7 @@ const Recommendation = () => {
   };
 
   const handleGetAIExplanation = async () => {
-    if (!result) {
+    if (!result || !syntheticReading) {
       toast.error("No results to explain");
       return;
     }
@@ -72,8 +73,8 @@ const Recommendation = () => {
     setLoadingExplanation(true);
     try {
       const payload = {
-        metalGrade: result.syntheticReading?.metalGrade || "unknown",
-        composition: result.syntheticReading?.composition || {},
+        metalGrade: syntheticReading.metalGrade,
+        composition: syntheticReading.composition,
         anomalyResult: {}, // Empty object instead of null
         alloyResult: result.aiAnalysis?.alloyRecommendation || {},
       };
@@ -358,7 +359,7 @@ const Recommendation = () => {
                     Metal Grade
                   </h3>
                   <p className="text-lg font-bold text-dark-900 font-mono">
-                    {result.syntheticReading.metalGrade}
+                    {syntheticReading.metalGrade}
                   </p>
                 </div>
                 <div className="text-right">
@@ -366,18 +367,16 @@ const Recommendation = () => {
                     Deviation Applied
                   </h3>
                   <p className="text-lg font-bold text-primary-600">
-                    {result.syntheticReading.deviationPercentage}%
+                    {syntheticReading.deviationPercentage}%
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {Object.entries(result.syntheticReading.composition).map(
+                {Object.entries(syntheticReading.composition).map(
                   ([element, value]) => {
                     const isDeviated =
-                      result.syntheticReading.deviationElements?.includes(
-                        element
-                      );
+                      syntheticReading.deviationElements?.includes(element);
                     return (
                       <div
                         key={element}
@@ -407,14 +406,14 @@ const Recommendation = () => {
               </div>
 
               {/* Applied Deviations Details */}
-              {result.syntheticReading.appliedDeviations &&
-                result.syntheticReading.appliedDeviations.length > 0 && (
+              {syntheticReading.appliedDeviations &&
+                syntheticReading.appliedDeviations.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-dark-200">
                     <h3 className="text-sm font-medium text-dark-700 mb-3">
                       Applied Deviations
                     </h3>
                     <div className="grid gap-2">
-                      {result.syntheticReading.appliedDeviations.map(
+                      {syntheticReading.appliedDeviations.map(
                         (deviation, index) => (
                           <div
                             key={index}

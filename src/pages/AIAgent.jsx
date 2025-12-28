@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { formatPercentage } from "../utils/formatters";
 
 const AIAgent = () => {
+  const [syntheticReading, setSyntheticReading] = useState(null); // Store synthetic data separately
   const [result, setResult] = useState(null);
   const [aiAvailable, setAIAvailable] = useState(true);
   const [aiExplanation, setAiExplanation] = useState(null);
@@ -20,18 +21,18 @@ const AIAgent = () => {
   const handleGenerate = async (reading, params) => {
     console.log("AI Agent: handleGenerate called with:", { reading, params });
 
+    // Store the synthetic reading from Step 1
+    setSyntheticReading(reading);
+
     setAiExplanation(null); // Reset AI explanation when new data is generated
     setAudioUrl(null);
     setIsPlaying(false);
 
     try {
-      // Use params which contains the request data
+      // New API format: pass metalGrade and composition
       const requestData = {
-        metalGrade: reading.metalGrade || params.metalGrade,
-        deviationElements:
-          reading.deviationElements || params.deviationElements,
-        deviationPercentage:
-          reading.deviationPercentage || params.deviationPercentage,
+        metalGrade: reading.metalGrade,
+        composition: reading.composition, // Pass the actual composition from synthetic reading
       };
 
       console.log("AI Agent: Sending to AI:", requestData);
@@ -64,7 +65,7 @@ const AIAgent = () => {
   };
 
   const handleGetAIExplanation = async () => {
-    if (!result) {
+    if (!result || !syntheticReading) {
       toast.error("No results to explain");
       return;
     }
@@ -72,8 +73,8 @@ const AIAgent = () => {
     setLoadingExplanation(true);
     try {
       const payload = {
-        metalGrade: result.syntheticReading?.metalGrade || "unknown",
-        composition: result.syntheticReading?.composition || {},
+        metalGrade: syntheticReading.metalGrade,
+        composition: syntheticReading.composition,
         anomalyResult: result.aiAnalysis?.anomalyDetection || {},
         alloyResult: result.aiAnalysis?.alloyRecommendation || {},
       };
@@ -588,7 +589,7 @@ const AIAgent = () => {
                     Metal Grade
                   </h3>
                   <p className="text-lg font-bold text-dark-900 font-mono">
-                    {result.syntheticReading.metalGrade}
+                    {syntheticReading.metalGrade}
                   </p>
                 </div>
                 <div className="text-right">
@@ -596,18 +597,16 @@ const AIAgent = () => {
                     Deviation Applied
                   </h3>
                   <p className="text-lg font-bold text-primary-600">
-                    {result.syntheticReading.deviationPercentage}%
+                    {syntheticReading.deviationPercentage}%
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {Object.entries(result.syntheticReading.composition).map(
+                {Object.entries(syntheticReading.composition).map(
                   ([element, value]) => {
                     const isDeviated =
-                      result.syntheticReading.deviationElements?.includes(
-                        element
-                      );
+                      syntheticReading.deviationElements?.includes(element);
                     return (
                       <div
                         key={element}
