@@ -1,26 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Card from "../components/common/Card";
 import Badge from "../components/common/Badge";
+import Button from "../components/common/Button";
 import SyntheticGenerator from "../components/common/SyntheticGenerator";
-import { analyzeAgent } from "../services/aiService";
+import { analyzeAgent, explainResult } from "../services/aiService";
+import { Sparkles, Volume2, VolumeX } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatPercentage } from "../utils/formatters";
 
 const AIAgent = () => {
+  const [syntheticReading, setSyntheticReading] = useState(null); // Store synthetic data separately
   const [result, setResult] = useState(null);
   const [aiAvailable, setAIAvailable] = useState(true);
+  const [aiExplanation, setAiExplanation] = useState(null);
+  const [loadingExplanation, setLoadingExplanation] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
 
   const handleGenerate = async (reading, params) => {
     console.log("AI Agent: handleGenerate called with:", { reading, params });
 
+    // Store the synthetic reading from Step 1
+    setSyntheticReading(reading);
+
+    setAiExplanation(null); // Reset AI explanation when new data is generated
+    setAudioUrl(null);
+    setIsPlaying(false);
+
     try {
-      // Use params which contains the request data
+      // New API format: pass metalGrade and composition
       const requestData = {
-        metalGrade: reading.metalGrade || params.metalGrade,
-        deviationElements:
-          reading.deviationElements || params.deviationElements,
-        deviationPercentage:
-          reading.deviationPercentage || params.deviationPercentage,
+        metalGrade: reading.metalGrade,
+        composition: reading.composition, // Pass the actual composition from synthetic reading
       };
 
       console.log("AI Agent: Sending to AI:", requestData);
@@ -49,6 +61,103 @@ const AIAgent = () => {
       toast.error(
         error.response?.data?.message || "Failed to complete AI Agent analysis"
       );
+    }
+  };
+
+  const handleGetAIExplanation = async () => {
+    if (!result || !syntheticReading) {
+      toast.error("No results to explain");
+      return;
+    }
+
+    setLoadingExplanation(true);
+    try {
+      const payload = {
+        metalGrade: syntheticReading.metalGrade,
+        composition: syntheticReading.composition,
+        anomalyResult: result.aiAnalysis?.anomalyDetection || {},
+        alloyResult: result.aiAnalysis?.alloyRecommendation || {},
+      };
+
+      console.log("Sending to AI explain endpoint:", payload);
+
+      const response = await explainResult(payload);
+
+      console.log("Response received:", response.data);
+
+      const explanation =
+        response.data?.data?.geminiExplanation?.explanation ||
+        response.data?.geminiExplanation?.explanation ||
+        "AI explanation unavailable";
+
+      setAiExplanation(explanation);
+
+      // Handle audio if present
+      const audioData = response.data?.data?.audio || response.data?.audio;
+      if (audioData && audioData.audio) {
+        try {
+          const byteCharacters = atob(audioData.audio);
+          const byteArray = new Uint8Array(
+            Array.from(byteCharacters).map((char) => char.charCodeAt(0))
+          );
+          const blob = new Blob([byteArray], { type: "audio/mpeg" });
+          const url = URL.createObjectURL(blob);
+          setAudioUrl(url);
+
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+          }
+        } catch (audioError) {
+          console.error("Failed to process audio:", audioError);
+        }
+      } else {
+        setAudioUrl(null);
+      }
+
+      // Show warning if Gemini API has issues
+      if (response.data?.status === "warning" && response.data?.warning) {
+        console.warn("Gemini API warning:", response.data.warning);
+      }
+
+      toast.success("AI explanation generated successfully");
+    } catch (error) {
+      console.error("Failed to get AI explanation:", error);
+      console.error("Error response:", error.response?.data);
+      toast.error(
+        error.response?.data?.message || "Failed to generate AI explanation"
+      );
+    } finally {
+      setLoadingExplanation(false);
+    }
+  };
+
+  const handlePlayAudio = () => {
+    if (!audioUrl) return;
+
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } else {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsPlaying(false);
+      };
+
+      audio.onerror = () => {
+        toast.error("Failed to play audio");
+        setIsPlaying(false);
+      };
+
+      audio.play();
+      setIsPlaying(true);
     }
   };
 
@@ -126,86 +235,6 @@ const AIAgent = () => {
               </div>
             </div>
           )}
-
-          {/* Quality Assessment Overview */}
-          <Card title="Quality Assessment">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Overall Status */}
-              <div className="p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                <p className="text-sm font-medium text-blue-700 mb-2">
-                  Overall Status
-                </p>
-                <p
-                  className={`text-2xl font-bold ${
-                    result.aiAnalysis.agentResponse?.quality_assessment
-                      ?.overall_status === "ACCEPTABLE"
-                      ? "text-green-600"
-                      : result.aiAnalysis.agentResponse?.quality_assessment
-                          ?.overall_status === "UNACCEPTABLE"
-                      ? "text-red-600"
-                      : "text-yellow-600"
-                  }`}
-                >
-                  {result.aiAnalysis.agentResponse?.quality_assessment
-                    ?.overall_status || "N/A"}
-                </p>
-              </div>
-
-              {/* Compliance Score */}
-              <div className="p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-                <p className="text-sm font-medium text-purple-700 mb-2">
-                  Compliance Score
-                </p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {result.aiAnalysis.agentResponse?.quality_assessment
-                    ?.compliance_score
-                    ? `${result.aiAnalysis.agentResponse.quality_assessment.compliance_score.toFixed(
-                        1
-                      )}%`
-                    : "N/A"}
-                </p>
-              </div>
-
-              {/* Risk Level */}
-              <div className="p-5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-                <p className="text-sm font-medium text-orange-700 mb-2">
-                  Risk Level
-                </p>
-                <Badge
-                  variant={
-                    result.aiAnalysis.agentResponse?.risk_level === "LOW"
-                      ? "success"
-                      : result.aiAnalysis.agentResponse?.risk_level === "MEDIUM"
-                      ? "warning"
-                      : result.aiAnalysis.agentResponse?.risk_level === "HIGH"
-                      ? "danger"
-                      : "info"
-                  }
-                  className="text-lg"
-                >
-                  {result.aiAnalysis.agentResponse?.risk_level || "UNKNOWN"}
-                </Badge>
-              </div>
-
-              {/* Human Approval */}
-              <div className="p-5 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg border border-pink-200">
-                <p className="text-sm font-medium text-pink-700 mb-2">
-                  Human Approval
-                </p>
-                <p
-                  className={`text-lg font-bold ${
-                    result.aiAnalysis.agentResponse?.human_approval_required
-                      ? "text-red-600"
-                      : "text-green-600"
-                  }`}
-                >
-                  {result.aiAnalysis.agentResponse?.human_approval_required
-                    ? "⚠️ Required"
-                    : "✓ Not Required"}
-                </p>
-              </div>
-            </div>
-          </Card>
 
           {/* Final Recommendation */}
           {result.aiAnalysis.agentResponse?.final_recommendation && (
@@ -560,7 +589,7 @@ const AIAgent = () => {
                     Metal Grade
                   </h3>
                   <p className="text-lg font-bold text-dark-900 font-mono">
-                    {result.syntheticReading.metalGrade}
+                    {syntheticReading.metalGrade}
                   </p>
                 </div>
                 <div className="text-right">
@@ -568,18 +597,16 @@ const AIAgent = () => {
                     Deviation Applied
                   </h3>
                   <p className="text-lg font-bold text-primary-600">
-                    {result.syntheticReading.deviationPercentage}%
+                    {syntheticReading.deviationPercentage}%
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {Object.entries(result.syntheticReading.composition).map(
+                {Object.entries(syntheticReading.composition).map(
                   ([element, value]) => {
                     const isDeviated =
-                      result.syntheticReading.deviationElements?.includes(
-                        element
-                      );
+                      syntheticReading.deviationElements?.includes(element);
                     return (
                       <div
                         key={element}
@@ -609,6 +636,61 @@ const AIAgent = () => {
               </div>
             </div>
           </Card>
+
+          {/* AI Explanation Button */}
+          <div className="flex justify-center">
+            <Button
+              onClick={handleGetAIExplanation}
+              loading={loadingExplanation}
+              disabled={loadingExplanation}
+              className="w-full md:w-auto"
+              variant="success"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {aiExplanation ? "Regenerate AI Reasoning" : "Get AI Reasoning"}
+            </Button>
+          </div>
+
+          {/* AI Explanation Display */}
+          {aiExplanation && (
+            <Card className="border-2 border-emerald-200">
+              <div className="space-y-4">
+                <div
+                  className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
+                  onClick={audioUrl ? handlePlayAudio : undefined}
+                  title={
+                    audioUrl
+                      ? isPlaying
+                        ? "Click to pause audio"
+                        : "Click to play audio explanation"
+                      : "Audio not available"
+                  }
+                >
+                  <Sparkles className="w-5 h-5" />
+                  <h3 className="text-lg font-semibold text-dark-900">
+                    Gemini AI Summary
+                  </h3>
+                  {audioUrl &&
+                    (isPlaying ? (
+                      <VolumeX className="w-5 h-5 text-emerald-600" />
+                    ) : (
+                      <Volume2 className="w-5 h-5 text-emerald-600" />
+                    ))}
+                  <Badge variant="success" className="ml-auto">
+                    Gemini Powered
+                  </Badge>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
+                  <div className="prose prose-sm max-w-none">
+                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
+                      {aiExplanation}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
         </div>
       )}
     </div>

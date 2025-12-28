@@ -17,3 +17,14 @@ export const analyzeIndividual = (data) =>
 
 // AI Agent Analysis
 export const analyzeAgent = (data) => api.post("/ai/agent/analyze", data);
+
+// AI Explanation Services (Google Gemini Integration)
+// Analyze reading with AI-powered explanation
+export const analyzeWithExplanation = (data) =>
+  api.post("/ai/analyze-with-explanation", data);
+
+// Get AI explanation for specific results
+export const explainResult = (data) => api.post("/ai/explain", data);
+
+// Run what-if scenario analysis
+export const whatIfAnalysis = (data) => api.post("/ai/what-if", data);

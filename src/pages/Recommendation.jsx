@@ -1,26 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Card from "../components/common/Card";
 import Badge from "../components/common/Badge";
+import Button from "../components/common/Button";
 import SyntheticGenerator from "../components/common/SyntheticGenerator";
-import { analyzeIndividual } from "../services/aiService";
+import { analyzeIndividual, explainResult } from "../services/aiService";
+import { Sparkles, Volume2, VolumeX } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatPercentage, formatConfidence } from "../utils/formatters";
 
 const Recommendation = () => {
+  const [syntheticReading, setSyntheticReading] = useState(null); // Store synthetic data separately
   const [result, setResult] = useState(null);
   const [aiAvailable, setAIAvailable] = useState(true);
+  const [aiExplanation, setAiExplanation] = useState(null);
+  const [loadingExplanation, setLoadingExplanation] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
 
   const handleGenerate = async (reading, params) => {
     console.log("handleGenerate called with:", { reading, params });
 
+    // Store the synthetic reading from Step 1
+    setSyntheticReading(reading);
+
+    setAiExplanation(null); // Reset AI explanation when new data is generated
+    setAudioUrl(null);
+    setIsPlaying(false);
+
     try {
-      // Use params which contains the request data, or reading if it has the needed properties
+      // New API format: pass metalGrade and composition
       const requestData = {
-        metalGrade: reading.metalGrade || params.metalGrade,
-        deviationElements:
-          reading.deviationElements || params.deviationElements,                                                                
-        deviationPercentage:
-          reading.deviationPercentage || params.deviationPercentage,
+        metalGrade: reading.metalGrade,
+        composition: reading.composition, // Pass the actual composition from synthetic reading
       };
 
       console.log("Sending to AI:", requestData);
@@ -49,6 +61,103 @@ const Recommendation = () => {
       toast.error(
         error.response?.data?.message || "Failed to generate recommendation"
       );
+    }
+  };
+
+  const handleGetAIExplanation = async () => {
+    if (!result || !syntheticReading) {
+      toast.error("No results to explain");
+      return;
+    }
+
+    setLoadingExplanation(true);
+    try {
+      const payload = {
+        metalGrade: syntheticReading.metalGrade,
+        composition: syntheticReading.composition,
+        anomalyResult: {}, // Empty object instead of null
+        alloyResult: result.aiAnalysis?.alloyRecommendation || {},
+      };
+
+      console.log("Sending to AI explain endpoint:", payload);
+
+      const response = await explainResult(payload);
+
+      console.log("Response received:", response.data);
+
+      const explanation =
+        response.data?.data?.geminiExplanation?.explanation ||
+        response.data?.geminiExplanation?.explanation ||
+        "AI explanation unavailable";
+
+      setAiExplanation(explanation);
+
+      // Handle audio if present
+      const audioData = response.data?.data?.audio || response.data?.audio;
+      if (audioData && audioData.audio) {
+        try {
+          const byteCharacters = atob(audioData.audio);
+          const byteArray = new Uint8Array(
+            Array.from(byteCharacters).map((char) => char.charCodeAt(0))
+          );
+          const blob = new Blob([byteArray], { type: "audio/mpeg" });
+          const url = URL.createObjectURL(blob);
+          setAudioUrl(url);
+
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+          }
+        } catch (audioError) {
+          console.error("Failed to process audio:", audioError);
+        }
+      } else {
+        setAudioUrl(null);
+      }
+
+      // Show warning if Gemini API has issues
+      if (response.data?.status === "warning" && response.data?.warning) {
+        console.warn("Gemini API warning:", response.data.warning);
+      }
+
+      toast.success("AI explanation generated successfully");
+    } catch (error) {
+      console.error("Failed to get AI explanation:", error);
+      console.error("Error response:", error.response?.data);
+      toast.error(
+        error.response?.data?.message || "Failed to generate AI explanation"
+      );
+    } finally {
+      setLoadingExplanation(false);
+    }
+  };
+
+  const handlePlayAudio = () => {
+    if (!audioUrl) return;
+
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } else {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        setIsPlaying(false);
+      };
+
+      audio.onerror = () => {
+        toast.error("Failed to play audio");
+        setIsPlaying(false);
+      };
+
+      audio.play();
+      setIsPlaying(true);
     }
   };
 
@@ -126,47 +235,6 @@ const Recommendation = () => {
               </div>
             </div>
           )}
-
-          {/* Predicted Grade & Confidence */}
-          <Card title="Predicted Grade">
-            <div className="text-center p-8">
-              <h2 className="text-5xl font-bold text-primary-600 mb-2 font-mono">
-                {result.aiAnalysis.alloyRecommendation.predicted_grade || "N/A"}
-              </h2>
-
-              {result.aiAnalysis.alloyRecommendation.confidence !== null && (
-                <div className="mt-6 max-w-md mx-auto">
-                  <p className="text-sm text-dark-600 mb-3 font-medium">
-                    Confidence Level
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1 bg-dark-200 rounded-full h-6 overflow-hidden">
-                      <div
-                        className="h-6 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-500"
-                        style={{
-                          width: `${
-                            (result.aiAnalysis.alloyRecommendation.confidence ||
-                              0) * 100
-                          }%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-3xl font-bold text-primary-600 min-w-[80px] text-right">
-                      {formatConfidence(
-                        result.aiAnalysis.alloyRecommendation.confidence
-                      )}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {result.aiAnalysis.alloyRecommendation.confidence === null && (
-                <p className="text-dark-500 mt-4">
-                  Confidence data unavailable
-                </p>
-              )}
-            </div>
-          </Card>
 
           {/* Recommended Additions */}
           {result.aiAnalysis.alloyRecommendation.recommended_additions &&
@@ -291,7 +359,7 @@ const Recommendation = () => {
                     Metal Grade
                   </h3>
                   <p className="text-lg font-bold text-dark-900 font-mono">
-                    {result.syntheticReading.metalGrade}
+                    {syntheticReading.metalGrade}
                   </p>
                 </div>
                 <div className="text-right">
@@ -299,18 +367,16 @@ const Recommendation = () => {
                     Deviation Applied
                   </h3>
                   <p className="text-lg font-bold text-primary-600">
-                    {result.syntheticReading.deviationPercentage}%
+                    {syntheticReading.deviationPercentage}%
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {Object.entries(result.syntheticReading.composition).map(
+                {Object.entries(syntheticReading.composition).map(
                   ([element, value]) => {
                     const isDeviated =
-                      result.syntheticReading.deviationElements?.includes(
-                        element
-                      );
+                      syntheticReading.deviationElements?.includes(element);
                     return (
                       <div
                         key={element}
@@ -340,20 +406,81 @@ const Recommendation = () => {
               </div>
 
               {/* Applied Deviations Details */}
-              {result.syntheticReading.appliedDeviations &&
-                result.syntheticReading.appliedDeviations.length > 0 && (
+              {syntheticReading.appliedDeviations &&
+                syntheticReading.appliedDeviations.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-dark-200">
                     <h3 className="text-sm font-medium text-dark-700 mb-3">
                       Applied Deviations
                     </h3>
                     <div className="grid gap-2">
-                      {result.syntheticReading.appliedDeviations.map(
+                      {syntheticReading.appliedDeviations.map(
                         (deviation, index) => (
                           <div
                             key={index}
                             className="flex items-center justify-between p-2 bg-yellow-50 rounded text-sm"
                           >
                             <span className="font-mono font-bold text-dark-900">
+                              {/* AI Explanation Button */}
+                              <div className="flex justify-center">
+                                <Button
+                                  onClick={handleGetAIExplanation}
+                                  loading={loadingExplanation}
+                                  disabled={loadingExplanation}
+                                  className="w-full md:w-auto"
+                                  variant="success"
+                                >
+                                  <Sparkles className="w-4 h-4 mr-2" />
+                                  {aiExplanation
+                                    ? "Regenerate AI Reasoning"
+                                    : "Get AI Reasoning"}
+                                </Button>
+                              </div>
+
+                              {/* AI Explanation Display */}
+                              {aiExplanation && (
+                                <Card className="border-2 border-emerald-200">
+                                  <div className="space-y-4">
+                                    <div
+                                      className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
+                                      onClick={
+                                        audioUrl ? handlePlayAudio : undefined
+                                      }
+                                      title={
+                                        audioUrl
+                                          ? isPlaying
+                                            ? "Click to pause audio"
+                                            : "Click to play audio explanation"
+                                          : "Audio not available"
+                                      }
+                                    >
+                                      <Sparkles className="w-5 h-5" />
+                                      <h3 className="text-lg font-semibold text-dark-900">
+                                        Gemini AI Summary
+                                      </h3>
+                                      {audioUrl &&
+                                        (isPlaying ? (
+                                          <VolumeX className="w-5 h-5 text-emerald-600" />
+                                        ) : (
+                                          <Volume2 className="w-5 h-5 text-emerald-600" />
+                                        ))}
+                                      <Badge
+                                        variant="success"
+                                        className="ml-auto"
+                                      >
+                                        Gemini Powered
+                                      </Badge>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
+                                      <div className="prose prose-sm max-w-none">
+                                        <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
+                                          {aiExplanation}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Card>
+                              )}
                               {deviation.element}
                             </span>
                             <div className="flex items-center gap-3 text-dark-700">
