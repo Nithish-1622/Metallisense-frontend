@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { AlertTriangle, CheckCircle } from "lucide-react";
+import { useState, useRef } from "react";
+import { AlertTriangle, CheckCircle, Sparkles, Volume2, VolumeX, Loader2 } from "lucide-react";
 import Card from "../components/common/Card";
 import Badge from "../components/common/Badge";
+import Button from "../components/common/Button";
 import Table from "../components/common/Table";
 import SyntheticGenerator from "../components/common/SyntheticGenerator";
-import { predictAnomaly } from "../services/aiService";
+import { analyzeIndividual, explainResult, predictAnomaly } from "../services/aiService";
 import toast from "react-hot-toast";
 import { formatPercentage } from "../utils/formatters";
 
@@ -12,9 +13,17 @@ const AnomalyDetection = () => {
   const [generatedReading, setGeneratedReading] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState(null);
+  const [loadingExplanation, setLoadingExplanation] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
 
   const handleSyntheticDataGenerated = async (reading, params) => {
     setGeneratedReading(reading);
+    setAiExplanation(null); // Reset AI explanation when new data is generated
+    setAudioUrl(null); // Reset audio
+    setIsPlaying(false);
 
     // Automatically analyze the generated reading
     await performAnalysis(reading);
@@ -46,6 +55,100 @@ const AnomalyDetection = () => {
       );
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  const handleGetAIExplanation = async () => {
+    if (!analysisResult) {
+      toast.error("No analysis results to explain");
+      return;
+    }
+
+    setLoadingExplanation(true);
+    try {
+      const payload = {
+        metalGrade: generatedReading?.metalGrade || "unknown",
+        composition: generatedReading?.composition || {},
+        anomalyResult: analysisResult.anomalyDetection || {},
+        alloyResult: {}, // Empty object instead of null
+      };
+      
+      console.log("Sending to AI explain endpoint:", payload);
+
+      const response = await explainResult(payload);
+      
+      console.log("Response received:", response.data);
+
+      const explanation = response.data?.data?.geminiExplanation?.explanation || 
+                         response.data?.geminiExplanation?.explanation || 
+                         "AI explanation unavailable";
+      
+      setAiExplanation(explanation);
+      
+      // Handle audio if present
+      const audioData = response.data?.data?.audio || response.data?.audio;
+      if (audioData && audioData.audio) {
+        try {
+          // Convert base64 to audio blob
+          const byteCharacters = atob(audioData.audio);
+          const byteArray = new Uint8Array(Array.from(byteCharacters).map(char => char.charCodeAt(0)));
+          const blob = new Blob([byteArray], { type: 'audio/mpeg' });
+          const url = URL.createObjectURL(blob);
+          setAudioUrl(url);
+          
+          // Clean up previous audio
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+          }
+        } catch (audioError) {
+          console.error("Failed to process audio:", audioError);
+        }
+      } else {
+        setAudioUrl(null);
+      }
+      
+      // Show warning if Gemini API has issues
+      if (response.data?.status === 'warning' && response.data?.warning) {
+        console.warn("Gemini API warning:", response.data.warning);
+      }
+      
+      toast.success("AI explanation generated successfully");
+    } catch (error) {
+      console.error("Failed to get AI explanation:", error);
+      console.error("Error response:", error.response?.data);
+      toast.error(error.response?.data?.message || "Failed to generate AI explanation");
+    } finally {
+      setLoadingExplanation(false);
+    }
+  };
+
+  const handlePlayAudio = () => {
+    if (!audioUrl) return;
+
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } else {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      
+      audio.onended = () => {
+        setIsPlaying(false);
+      };
+      
+      audio.onerror = () => {
+        toast.error("Failed to play audio");
+        setIsPlaying(false);
+      };
+      
+      audio.play();
+      setIsPlaying(true);
     }
   };
 
@@ -291,6 +394,52 @@ const AnomalyDetection = () => {
                   </p>
                 </div>
               )}
+
+              {/* AI Explanation Button */}
+              <div className="mt-6">
+                <Button
+                  onClick={handleGetAIExplanation}
+                  loading={loadingExplanation}
+                  disabled={loadingExplanation}
+                  className="w-full md:w-auto"
+                  variant="success"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {aiExplanation ? "Regenerate AI Reasoning" : "Get AI Reasoning"}
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {/* AI Explanation Display */}
+          {aiExplanation && (
+            <Card className="border-2 border-emerald-200">
+              <div className="space-y-4">
+                <div 
+                  className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
+                  onClick={audioUrl ? handlePlayAudio : undefined}
+                  title={audioUrl ? (isPlaying ? 'Click to pause audio' : 'Click to play audio explanation') : 'Audio not available'}
+                >
+                  <Sparkles className="w-5 h-5" />
+                  <h3 className="text-lg font-semibold text-dark-900">
+                    Gemini AI Summary
+                  </h3>
+                  {audioUrl && (
+                    isPlaying ? <VolumeX className="w-5 h-5 text-emerald-600" /> : <Volume2 className="w-5 h-5 text-emerald-600" />
+                  )}
+                  <Badge variant="success" className="ml-auto">
+                    Gemini Powered
+                  </Badge>
+                </div>
+                
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
+                  <div className="prose prose-sm max-w-none">
+                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
+                      {aiExplanation}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Card>
           )}
         </>
