@@ -1,11 +1,14 @@
 import { useState, useRef } from "react";
-import { AlertTriangle, CheckCircle, Sparkles, Volume2, VolumeX, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle, Sparkles, Volume2, VolumeX, Loader2, MessageCircle } from "lucide-react";
 import Card from "../components/common/Card";
 import Badge from "../components/common/Badge";
 import Button from "../components/common/Button";
 import Table from "../components/common/Table";
 import SyntheticGenerator from "../components/common/SyntheticGenerator";
-import { analyzeIndividual, explainResult, predictAnomaly } from "../services/aiService";
+import ExplanationCard from "../components/common/ExplanationCard";
+import AIChatInterface from "../components/common/AIChatInterface";
+import { predictAnomaly } from "../services/aiService";
+import { getExplanation } from "../services/copilotService";
 import toast from "react-hot-toast";
 import { formatPercentage } from "../utils/formatters";
 
@@ -17,12 +20,15 @@ const AnomalyDetection = () => {
   const [loadingExplanation, setLoadingExplanation] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [copilotExplanation, setCopilotExplanation] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const audioRef = useRef(null);
 
   const handleSyntheticDataGenerated = async (reading, params) => {
     setGeneratedReading(reading);
-    setAiExplanation(null); // Reset AI explanation when new data is generated
-    setAudioUrl(null); // Reset audio
+    setAiExplanation(null);
+    setCopilotExplanation(null);
+    setAudioUrl(null);
     setIsPlaying(false);
 
     // Automatically analyze the generated reading
@@ -31,6 +37,7 @@ const AnomalyDetection = () => {
 
   const performAnalysis = async (reading) => {
     setAnalyzing(true);
+    setCopilotExplanation(null);
     try {
       const response = await predictAnomaly({
         grade: reading.metalGrade,
@@ -40,6 +47,9 @@ const AnomalyDetection = () => {
       if (response.data) {
         const result = response.data.data || response.data;
         setAnalysisResult(result);
+
+        // Auto-generate copilot explanation after successful analysis
+        await generateCopilotExplanation(reading, result);
 
         const severity = result.severity || "NORMAL";
         const anomalyStatus =
@@ -58,69 +68,30 @@ const AnomalyDetection = () => {
     }
   };
 
+  const generateCopilotExplanation = async (reading, result) => {
+    try {
+      const response = await getExplanation({
+        composition: reading.composition,
+        grade: reading.metalGrade,
+        analysisResult: result,
+      });
+
+      if (response.data) {
+        setCopilotExplanation(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to get copilot explanation:", error);
+      // Don't show error toast for copilot, it's supplementary
+    }
+  };
+
   const handleGetAIExplanation = async () => {
-    if (!analysisResult) {
+    if (!analysisResult || !generatedReading) {
       toast.error("No analysis results to explain");
       return;
     }
 
-    setLoadingExplanation(true);
-    try {
-      const payload = {
-        metalGrade: generatedReading?.metalGrade || "unknown",
-        composition: generatedReading?.composition || {},
-        anomalyResult: analysisResult.anomalyDetection || {},
-        alloyResult: {}, // Empty object instead of null
-      };
-      
-      console.log("Sending to AI explain endpoint:", payload);
-
-      const response = await explainResult(payload);
-      
-      console.log("Response received:", response.data);
-
-      const explanation = response.data?.data?.geminiExplanation?.explanation || 
-                         response.data?.geminiExplanation?.explanation || 
-                         "AI explanation unavailable";
-      
-      setAiExplanation(explanation);
-      
-      // Handle audio if present
-      const audioData = response.data?.data?.audio || response.data?.audio;
-      if (audioData && audioData.audio) {
-        try {
-          // Convert base64 to audio blob
-          const byteCharacters = atob(audioData.audio);
-          const byteArray = new Uint8Array(Array.from(byteCharacters).map(char => char.charCodeAt(0)));
-          const blob = new Blob([byteArray], { type: 'audio/mpeg' });
-          const url = URL.createObjectURL(blob);
-          setAudioUrl(url);
-          
-          // Clean up previous audio
-          if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current = null;
-          }
-        } catch (audioError) {
-          console.error("Failed to process audio:", audioError);
-        }
-      } else {
-        setAudioUrl(null);
-      }
-      
-      // Show warning if Gemini API has issues
-      if (response.data?.status === 'warning' && response.data?.warning) {
-        console.warn("Gemini API warning:", response.data.warning);
-      }
-      
-      toast.success("AI explanation generated successfully");
-    } catch (error) {
-      console.error("Failed to get AI explanation:", error);
-      console.error("Error response:", error.response?.data);
-      toast.error(error.response?.data?.message || "Failed to generate AI explanation");
-    } finally {
-      setLoadingExplanation(false);
-    }
+    await generateCopilotExplanation(generatedReading, analysisResult);
   };
 
   const handlePlayAudio = () => {
@@ -445,6 +416,9 @@ const AnomalyDetection = () => {
         </>
       )}
 
+      {/* Copilot Explanation */}
+      {copilotExplanation && <ExplanationCard explanation={copilotExplanation} />}
+
       {/* Empty State */}
       {!generatedReading && !analyzing && (
         <Card className="text-center py-12">
@@ -457,6 +431,20 @@ const AnomalyDetection = () => {
           </p>
         </Card>
       )}
+
+      {/* AI Chat Button */}
+      {analysisResult && (
+        <button
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
+          title="Open AI Copilot Chat"
+        >
+          <MessageCircle className="w-6 h-6" />
+        </button>
+      )}
+
+      {/* AI Chat Interface */}
+      <AIChatInterface isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 };
