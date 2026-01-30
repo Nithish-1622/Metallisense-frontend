@@ -90,7 +90,19 @@ const AIAgent = () => {
         response.data?.geminiExplanation?.explanation ||
         "AI explanation unavailable";
 
-      setAiExplanation(explanation);
+      // Get the anomaly explanation from the result
+      const anomalyExplanation =
+        result.aiAnalysis?.anomalyDetection?.anomaly?.explanation || "";
+
+      // Combine anomaly explanation with Gemini explanation
+      const combinedExplanation = anomalyExplanation
+        ? `Analysis:\n${anomalyExplanation}\n\nDetailed AI Reasoning:\n${explanation}`
+        : explanation;
+
+      // Show the explanation after a 1-second delay
+      setTimeout(() => {
+        setAiExplanation(combinedExplanation);
+      }, 1000);
 
       // Handle audio if present
       const audioData = response.data?.data?.audio || response.data?.audio;
@@ -363,16 +375,7 @@ const AIAgent = () => {
                       </div>
                     </div>
 
-                    {/* Explanation */}
-                    {anomaly.explanation && (
-                      <div
-                        className={`p-5 rounded-lg border-l-4 ${style.bg} ${style.border}`}
-                      >
-                        <p className={`text-sm ${style.text}`}>
-                          {anomaly.explanation}
-                        </p>
-                      </div>
-                    )}
+                    {/* Explanation - Now shown via Get AI Reasoning button */}
                   </div>
                 );
               })()}
