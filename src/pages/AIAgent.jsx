@@ -3,41 +3,43 @@ import Card from "../components/common/Card";
 import Badge from "../components/common/Badge";
 import Button from "../components/common/Button";
 import SyntheticGenerator from "../components/common/SyntheticGenerator";
-import { analyzeAgent, explainResult } from "../services/aiService";
-import { Sparkles, Volume2, VolumeX } from "lucide-react";
+import ExplanationCard from "../components/common/ExplanationCard";
+import AIChatInterface from "../components/common/AIChatInterface";
+import { analyzeAgent } from "../services/aiService";
+import { getExplanation } from "../services/copilotService";
+import { Sparkles, Volume2, VolumeX, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatPercentage } from "../utils/formatters";
 
 const AIAgent = () => {
-  const [syntheticReading, setSyntheticReading] = useState(null); // Store synthetic data separately
+  const [syntheticReading, setSyntheticReading] = useState(null);
   const [result, setResult] = useState(null);
   const [aiAvailable, setAIAvailable] = useState(true);
   const [aiExplanation, setAiExplanation] = useState(null);
   const [loadingExplanation, setLoadingExplanation] = useState(false);
   const [audioUrl, setAudioUrl] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [copilotExplanation, setCopilotExplanation] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const audioRef = useRef(null);
 
   const handleGenerate = async (reading, params) => {
     console.log("AI Agent: handleGenerate called with:", { reading, params });
 
-    // Store the synthetic reading from Step 1
     setSyntheticReading(reading);
-
-    setAiExplanation(null); // Reset AI explanation when new data is generated
+    setAiExplanation(null);
+    setCopilotExplanation(null);
     setAudioUrl(null);
     setIsPlaying(false);
 
     try {
-      // New API format: pass metalGrade and composition
       const requestData = {
         metalGrade: reading.metalGrade,
-        composition: reading.composition, // Pass the actual composition from synthetic reading
+        composition: reading.composition,
       };
 
       console.log("AI Agent: Sending to AI:", requestData);
 
-      // Analyze using AI Agent endpoint
       const response = await analyzeAgent(requestData);
 
       console.log("AI Agent: Response:", response.data);
@@ -45,12 +47,21 @@ const AIAgent = () => {
       const data = response.data.data;
       setResult(data);
 
-      // Check AI service availability
+      // Auto-generate copilot explanation
+      await generateCopilotExplanation(reading, data);
+
       if (!data.aiAnalysis.serviceAvailable) {
         setAIAvailable(false);
-        toast.warning(
-          "AI Agent service is experiencing issues. Results may be incomplete."
-        );
+        toast.custom((t) => (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 shadow-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">⚠️</span>
+              <span className="text-amber-800">
+                AI Agent service is experiencing issues. Results may be incomplete.
+              </span>
+            </div>
+          </div>
+        ));
       } else {
         setAIAvailable(true);
         toast.success("AI Agent analysis completed successfully");
@@ -64,84 +75,30 @@ const AIAgent = () => {
     }
   };
 
+  const generateCopilotExplanation = async (reading, resultData) => {
+    try {
+      const response = await getExplanation({
+        composition: reading.composition,
+        grade: reading.metalGrade,
+        analysisResult: resultData,
+      });
+
+      if (response.data) {
+        setCopilotExplanation(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to get copilot explanation:", error);
+      // Don't show error toast for copilot, it's supplementary
+    }
+  };
+
   const handleGetAIExplanation = async () => {
     if (!result || !syntheticReading) {
       toast.error("No results to explain");
       return;
     }
 
-    setLoadingExplanation(true);
-    try {
-      const payload = {
-        metalGrade: syntheticReading.metalGrade,
-        composition: syntheticReading.composition,
-        anomalyResult: result.aiAnalysis?.anomalyDetection || {},
-        alloyResult: result.aiAnalysis?.alloyRecommendation || {},
-      };
-
-      console.log("Sending to AI explain endpoint:", payload);
-
-      const response = await explainResult(payload);
-
-      console.log("Response received:", response.data);
-
-      const explanation =
-        response.data?.data?.geminiExplanation?.explanation ||
-        response.data?.geminiExplanation?.explanation ||
-        "AI explanation unavailable";
-
-      // Get the anomaly explanation from the result
-      const anomalyExplanation =
-        result.aiAnalysis?.anomalyDetection?.anomaly?.explanation || "";
-
-      // Combine anomaly explanation with Gemini explanation
-      const combinedExplanation = anomalyExplanation
-        ? `Analysis:\n${anomalyExplanation}\n\nDetailed AI Reasoning:\n${explanation}`
-        : explanation;
-
-      // Show the explanation after a 1-second delay
-      setTimeout(() => {
-        setAiExplanation(combinedExplanation);
-      }, 1000);
-
-      // Handle audio if present
-      const audioData = response.data?.data?.audio || response.data?.audio;
-      if (audioData && audioData.audio) {
-        try {
-          const byteCharacters = atob(audioData.audio);
-          const byteArray = new Uint8Array(
-            Array.from(byteCharacters).map((char) => char.charCodeAt(0))
-          );
-          const blob = new Blob([byteArray], { type: "audio/mpeg" });
-          const url = URL.createObjectURL(blob);
-          setAudioUrl(url);
-
-          if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current = null;
-          }
-        } catch (audioError) {
-          console.error("Failed to process audio:", audioError);
-        }
-      } else {
-        setAudioUrl(null);
-      }
-
-      // Show warning if Gemini API has issues
-      if (response.data?.status === "warning" && response.data?.warning) {
-        console.warn("Gemini API warning:", response.data.warning);
-      }
-
-      toast.success("AI explanation generated successfully");
-    } catch (error) {
-      console.error("Failed to get AI explanation:", error);
-      console.error("Error response:", error.response?.data);
-      toast.error(
-        error.response?.data?.message || "Failed to generate AI explanation"
-      );
-    } finally {
-      setLoadingExplanation(false);
-    }
+    await generateCopilotExplanation(syntheticReading, result);
   };
 
   const handlePlayAudio = () => {
@@ -696,6 +653,23 @@ const AIAgent = () => {
           )}
         </div>
       )}
+
+      {/* Copilot Explanation */}
+      {copilotExplanation && <ExplanationCard explanation={copilotExplanation} />}
+
+      {/* AI Chat Button */}
+      {result && (
+        <button
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className="fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
+          title="Open AI Copilot Chat"
+        >
+          <MessageCircle className="w-6 h-6" />
+        </button>
+      )}
+
+      {/* AI Chat Interface */}
+      <AIChatInterface isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 };
