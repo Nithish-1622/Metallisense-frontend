@@ -16,9 +16,9 @@ const ExplanationCard = ({ explanation }) => {
     try {
       setIsSpeaking(true);
       const fullText = `
-        ${explanation.summary}
-        Key factors: ${explanation.key_factors.join(", ")}
-        ${explanation.recommendation}
+        ${explanation.summary || ''}
+        ${explanation.key_factors && explanation.key_factors.length > 0 ? `Key factors: ${explanation.key_factors.join(", ")}` : ''}
+        ${explanation.recommendation || ''}
       `;
 
       const audioBlob = await synthesizeSpeech(fullText);
