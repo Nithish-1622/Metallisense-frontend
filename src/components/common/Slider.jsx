@@ -13,15 +13,15 @@ const Slider = ({
   containerClassName = "",
 }) => {
   return (
-    <div className={clsx("mb-4 ", containerClassName)}>
-      <div className="flex justify-between items-center mb-2">
+    <div className={clsx("mb-3 sm:mb-4", containerClassName)}>
+      <div className="flex justify-between items-center mb-1.5 sm:mb-2">
         {label && (
-          <label className="block text-sm font-medium text-dark-700">
+          <label className="block text-xs sm:text-sm font-medium text-dark-700">
             {label}
           </label>
         )}
         {showValue && (
-          <span className="text-sm font-mono text-dark-600">
+          <span className="text-xs sm:text-sm font-mono text-dark-600">
             {value}
             {max <= 100 ? "%" : ""}
           </span>
@@ -35,7 +35,7 @@ const Slider = ({
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className={clsx(
-          "w-full h-2 bg-dark-200 rounded-lg appearance-none cursor-pointer slider",
+          "w-full h-1.5 sm:h-2 bg-dark-200 rounded-lg appearance-none cursor-pointer slider",
           className
         )}
         style={{
@@ -44,7 +44,7 @@ const Slider = ({
           }%, #e2e8f0 ${((value - min) / (max - min)) * 100}%, #e2e8f0 100%)`,
         }}
       />
-      <div className="flex justify-between text-xs text-dark-500 mt-1">
+      <div className="flex justify-between text-[10px] sm:text-xs text-dark-500 mt-0.5 sm:mt-1">
         <span>
           {min}
           {max <= 100 ? "%" : ""}

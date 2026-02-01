@@ -132,15 +132,15 @@ const SyntheticGenerator = ({
 
   return (
     <Card className={className}>
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2 text-primary-700">
-          <Beaker className="w-5 h-5" />
-          <h3 className="font-semibold text-dark-900">
+          <Beaker className="w-4 h-4 sm:w-5 sm:h-5" />
+          <h3 className="font-semibold text-dark-900 text-sm sm:text-base">
             Synthetic Reading Generator
           </h3>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {/* Grade Selection */}
           <Select
             label="Select Metal Grade"
@@ -163,21 +163,21 @@ const SyntheticGenerator = ({
           {/* Deviation Elements Selection */}
           {selectedGrade && (
             <div>
-              <label className="block text-sm font-medium text-dark-700 mb-3">
+              <label className="block text-xs sm:text-sm font-medium text-dark-700 mb-2 sm:mb-3">
                 Deviation Elements{" "}
                 {loadingElements && (
                   <span className="text-dark-500">(Loading...)</span>
                 )}
               </label>
               {availableElements.length > 0 ? (
-                <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-2">
+                <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1.5 sm:gap-2">
                   {availableElements.map((element) => (
                     <button
                       key={element}
                       type="button"
                       onClick={() => toggleDeviationElement(element)}
                       disabled={loadingElements}
-                      className={`px-3 py-2 rounded-lg border-2 font-mono font-semibold transition-all ${
+                      className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border-2 font-mono font-semibold text-xs sm:text-sm transition-all ${
                         deviationElements.includes(element)
                           ? "border-primary-500 bg-primary-50 text-primary-700"
                           : "border-dark-200 bg-white text-dark-600 hover:border-dark-300"
@@ -192,7 +192,7 @@ const SyntheticGenerator = ({
                   ))}
                 </div>
               ) : !loadingElements ? (
-                <p className="text-sm text-dark-500">
+                <p className="text-xs sm:text-sm text-dark-500">
                   No elements available for this grade
                 </p>
               ) : null}
@@ -200,7 +200,7 @@ const SyntheticGenerator = ({
           )}
 
           {/* Deviation Percentage */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Input
               type="number"
               label="Deviation Percentage (%)"
@@ -224,16 +224,16 @@ const SyntheticGenerator = ({
               deviationElements.length === 0 ||
               loadingElements
             }
-            className="w-full md:w-auto"
+            className="w-full sm:w-auto"
           >
             {buttonText}
           </Button>
 
           {/* OPC Connection Warning */}
           {!opcStatus?.connected && (
-            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-red-800">
+            <div className="mt-2 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs sm:text-sm text-red-800">
                 <span className="font-semibold">OPC Server Not Connected:</span>{" "}
                 Please connect to the OPC server to generate synthetic readings.
               </p>
@@ -242,8 +242,8 @@ const SyntheticGenerator = ({
 
           {/* Info */}
           {deviationElements.length > 0 && opcStatus?.connected && (
-            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800">
+            <div className="mt-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs sm:text-sm text-blue-800">
                 <span className="font-semibold">Selected elements:</span>{" "}
                 {deviationElements.join(", ")} will be deviated by ±
                 {deviationPercentage}%

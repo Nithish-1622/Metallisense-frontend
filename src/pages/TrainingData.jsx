@@ -243,14 +243,14 @@ const TrainingData = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-metal-900">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-metal-900">
             Training Data Management
           </h1>
-          <p className="text-metal-600 mt-2">
+          <p className="text-metal-600 mt-1 sm:mt-2 text-sm sm:text-base">
             {pagination.totalDocuments ? (
               <>
                 Showing{" "}
@@ -264,18 +264,19 @@ const TrainingData = () => {
                 samples
               </>
             ) : (
-              "Manage AI training samples with advanced filtering and pagination"
+              "Manage AI training samples with advanced filtering"
             )}
           </p>
         </div>
-        <Button onClick={handleCreate} icon={Plus}>
-          Add Sample
+        <Button onClick={handleCreate} icon={Plus} className="self-start sm:self-auto">
+          <span className="hidden xs:inline">Add Sample</span>
+          <span className="xs:hidden">Add</span>
         </Button>
       </div>
 
       {/* Filters */}
       <Card>
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-4">
           <Select
             label="Grade"
             value={gradeFilter}
@@ -346,7 +347,7 @@ const TrainingData = () => {
             ]}
           />
 
-          <div className="flex items-end">
+          <div className="flex items-end col-span-2 sm:col-span-1">
             <Button
               variant="secondary"
               onClick={fetchTrainingData}
@@ -362,7 +363,7 @@ const TrainingData = () => {
       {/* Pagination Info */}
       {pagination.totalPages && (
         <Card>
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center text-xs sm:text-sm gap-2">
             <p className="text-metal-600">
               Page{" "}
               <span className="font-bold text-primary-600">
@@ -386,38 +387,38 @@ const TrainingData = () => {
 
       {/* Data Table */}
       <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <table className="w-full min-w-[700px]">
             <thead className="border-b-2 border-metal-200">
               <tr>
-                <th className="px-4 py-3 text-left text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   Grade
                 </th>
-                <th className="px-4 py-3 text-left text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   Type
                 </th>
-                <th className="px-4 py-3 text-left text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   Severity
                 </th>
-                <th className="px-4 py-3 text-right text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   Fe %
                 </th>
-                <th className="px-4 py-3 text-right text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   C %
                 </th>
-                <th className="px-4 py-3 text-right text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   Si %
                 </th>
-                <th className="px-4 py-3 text-right text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   Mn %
                 </th>
-                <th className="px-4 py-3 text-right text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   P %
                 </th>
-                <th className="px-4 py-3 text-right text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-right text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   S %
                 </th>
-                <th className="px-4 py-3 text-center text-metal-800 font-bold text-sm">
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-metal-800 font-bold text-xs sm:text-sm whitespace-nowrap">
                   Actions
                 </th>
               </tr>
@@ -425,10 +426,10 @@ const TrainingData = () => {
             <tbody className="divide-y divide-metal-100">
               {loading ? (
                 <tr>
-                  <td colSpan="10" className="px-4 py-12 text-center">
+                  <td colSpan="10" className="px-4 py-8 sm:py-12 text-center">
                     <div className="flex flex-col items-center justify-center space-y-3">
-                      <RefreshCw className="w-8 h-8 animate-spin text-primary-500" />
-                      <span className="text-metal-600 font-medium">
+                      <RefreshCw className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-primary-500" />
+                      <span className="text-metal-600 font-medium text-sm sm:text-base">
                         Loading training data...
                       </span>
                     </div>
@@ -436,11 +437,11 @@ const TrainingData = () => {
                 </tr>
               ) : trainingData.length === 0 ? (
                 <tr>
-                  <td colSpan="10" className="px-4 py-12 text-center">
-                    <p className="text-metal-600 font-medium">
+                  <td colSpan="10" className="px-4 py-8 sm:py-12 text-center">
+                    <p className="text-metal-600 font-medium text-sm sm:text-base">
                       No training data found
                     </p>
-                    <p className="text-metal-500 text-sm mt-1">
+                    <p className="text-metal-500 text-xs sm:text-sm mt-1">
                       Try adjusting your filters
                     </p>
                   </td>

@@ -131,14 +131,14 @@ const AIAgent = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-dark-900">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-dark-900">
             AI Agent Analysis
           </h1>
-          <p className="text-dark-600 mt-1">
+          <p className="text-dark-600 mt-1 text-sm sm:text-base">
             Coordinated AI agent with combined insights, quality assessment, and
             actionable recommendations
           </p>
@@ -146,7 +146,7 @@ const AIAgent = () => {
 
         {/* AI Status Badge */}
         <div
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+          className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg self-start sm:self-auto ${
             aiAvailable
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
@@ -444,28 +444,28 @@ const AIAgent = () => {
 
           {/* Quality Assessment Details */}
           {result.aiAnalysis.agentResponse?.quality_assessment && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Issues */}
               {result.aiAnalysis.agentResponse.quality_assessment.issues &&
                 result.aiAnalysis.agentResponse.quality_assessment.issues
                   .length > 0 && (
                   <Card title="⚠️ Issues Detected">
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {result.aiAnalysis.agentResponse.quality_assessment.issues.map(
                         (issue, index) => (
                           <div
                             key={index}
-                            className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
+                            className="p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
                           >
-                            <div className="flex items-start gap-2">
-                              <Badge variant="warning" className="mt-0.5">
+                            <div className="flex flex-col sm:flex-row sm:items-start gap-2">
+                              <Badge variant="warning" className="self-start">
                                 {issue.element}
                               </Badge>
                               <div className="flex-1">
-                                <p className="font-medium text-yellow-900">
+                                <p className="font-medium text-yellow-900 text-sm sm:text-base">
                                   {issue.issue}
                                 </p>
-                                <p className="text-sm text-yellow-700 mt-1">
+                                <p className="text-xs sm:text-sm text-yellow-700 mt-1">
                                   Severity:{" "}
                                   <span className="font-semibold">
                                     {issue.severity}
@@ -495,10 +495,10 @@ const AIAgent = () => {
                         (strength, index) => (
                           <div
                             key={index}
-                            className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg"
+                            className="flex items-start gap-2 p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg"
                           >
                             <svg
-                              className="w-5 h-5 text-green-600 mt-0.5"
+                              className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mt-0.5 flex-shrink-0"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
@@ -508,7 +508,7 @@ const AIAgent = () => {
                                 clipRule="evenodd"
                               />
                             </svg>
-                            <p className="text-sm text-green-800">{strength}</p>
+                            <p className="text-xs sm:text-sm text-green-800">{strength}</p>
                           </div>
                         )
                       )}
@@ -522,17 +522,17 @@ const AIAgent = () => {
           {result.aiAnalysis.agentResponse?.suggested_actions &&
             result.aiAnalysis.agentResponse.suggested_actions.length > 0 && (
               <Card title="📋 Suggested Actions">
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {result.aiAnalysis.agentResponse.suggested_actions.map(
                     (action, index) => (
                       <div
                         key={index}
-                        className="flex items-start gap-3 p-4 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors"
+                        className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors"
                       >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white font-bold text-sm flex-shrink-0">
+                        <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary-500 text-white font-bold text-xs sm:text-sm flex-shrink-0">
                           {index + 1}
                         </div>
-                        <p className="text-dark-800 flex-1 pt-1">{action}</p>
+                        <p className="text-dark-800 flex-1 text-sm sm:text-base">{action}</p>
                       </div>
                     )
                   )}
@@ -543,26 +543,26 @@ const AIAgent = () => {
           {/* Generated Composition */}
           <Card title="Generated Synthetic Reading">
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-dark-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-dark-200 gap-2">
                 <div>
-                  <h3 className="text-sm font-medium text-dark-600">
+                  <h3 className="text-xs sm:text-sm font-medium text-dark-600">
                     Metal Grade
                   </h3>
-                  <p className="text-lg font-bold text-dark-900 font-mono">
+                  <p className="text-base sm:text-lg font-bold text-dark-900 font-mono">
                     {syntheticReading.metalGrade}
                   </p>
                 </div>
-                <div className="text-right">
-                  <h3 className="text-sm font-medium text-dark-600">
+                <div className="sm:text-right">
+                  <h3 className="text-xs sm:text-sm font-medium text-dark-600">
                     Deviation Applied
                   </h3>
-                  <p className="text-lg font-bold text-primary-600">
+                  <p className="text-base sm:text-lg font-bold text-primary-600">
                     {syntheticReading.deviationPercentage}%
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
                 {Object.entries(syntheticReading.composition).map(
                   ([element, value]) => {
                     const isDeviated =
@@ -570,14 +570,14 @@ const AIAgent = () => {
                     return (
                       <div
                         key={element}
-                        className={`p-3 rounded-lg ${
+                        className={`p-2 sm:p-3 rounded-lg ${
                           isDeviated
                             ? "bg-yellow-50 border-2 border-yellow-300"
                             : "bg-dark-50 border border-dark-200"
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-mono font-bold text-sm text-dark-900">
+                        <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                          <span className="font-mono font-bold text-xs sm:text-sm text-dark-900">
                             {element}
                           </span>
                           {isDeviated && (
@@ -586,7 +586,7 @@ const AIAgent = () => {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-lg font-bold text-dark-900">
+                        <p className="text-base sm:text-lg font-bold text-dark-900">
                           {formatPercentage(value)}
                         </p>
                       </div>
@@ -603,7 +603,7 @@ const AIAgent = () => {
               onClick={handleGetAIExplanation}
               loading={loadingExplanation}
               disabled={loadingExplanation}
-              className="w-full md:w-auto"
+              className="w-full sm:w-auto"
               variant="success"
             >
               <Sparkles className="w-4 h-4 mr-2" />
@@ -614,9 +614,9 @@ const AIAgent = () => {
           {/* AI Explanation Display */}
           {aiExplanation && (
             <Card className="border-2 border-emerald-200">
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div
-                  className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
+                  className="flex flex-wrap items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
                   onClick={audioUrl ? handlePlayAudio : undefined}
                   title={
                     audioUrl
@@ -626,24 +626,24 @@ const AIAgent = () => {
                       : "Audio not available"
                   }
                 >
-                  <Sparkles className="w-5 h-5" />
-                  <h3 className="text-lg font-semibold text-dark-900">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <h3 className="text-base sm:text-lg font-semibold text-dark-900">
                     Gemini AI Summary
                   </h3>
                   {audioUrl &&
                     (isPlaying ? (
-                      <VolumeX className="w-5 h-5 text-emerald-600" />
+                      <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                     ) : (
-                      <Volume2 className="w-5 h-5 text-emerald-600" />
+                      <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                     ))}
                   <Badge variant="success" className="ml-auto">
                     Gemini Powered
                   </Badge>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 sm:p-6">
                   <div className="prose prose-sm max-w-none">
-                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
+                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">
                       {aiExplanation}
                     </div>
                   </div>
@@ -661,10 +661,10 @@ const AIAgent = () => {
       {result && (
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className="fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-3 sm:p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
           title="Open AI Copilot Chat"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       )}
 

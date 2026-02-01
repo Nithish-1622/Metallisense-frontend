@@ -210,20 +210,21 @@ const GradeSpecs = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-dark-900">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-dark-900">
             Grade Specifications
           </h1>
-          <p className="text-dark-600 mt-1">
+          <p className="text-dark-600 mt-1 text-sm sm:text-base">
             Manage metal grade standards and composition ranges
           </p>
         </div>
-        <Button onClick={() => handleOpenModal()}>
+        <Button onClick={() => handleOpenModal()} className="self-start sm:self-auto">
           <Plus size={18} className="inline mr-2" />
-          Add New Grade
+          <span className="hidden xs:inline">Add New Grade</span>
+          <span className="xs:hidden">Add</span>
         </Button>
       </div>
 
@@ -236,10 +237,10 @@ const GradeSpecs = () => {
           />
           <input
             type="text"
-            placeholder="Search by grade name, standard, or description..."
+            placeholder="Search by grade name, standard..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-dark-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-dark-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
       </Card>
@@ -247,36 +248,36 @@ const GradeSpecs = () => {
       {/* Table */}
       <Card>
         {loading ? (
-          <div className="text-center py-12 text-dark-500">
+          <div className="text-center py-8 sm:py-12 text-dark-500 text-sm sm:text-base">
             Loading grade specifications...
           </div>
         ) : filteredGrades.length === 0 ? (
-          <div className="text-center py-12 text-dark-500">
+          <div className="text-center py-8 sm:py-12 text-dark-500 text-sm sm:text-base">
             {searchTerm
               ? "No grade specifications found matching your search"
               : "No grade specifications yet. Create one to get started."}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
             <table className="min-w-full divide-y divide-dark-200">
               <thead className="bg-dark-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider whitespace-nowrap">
                     Grade
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider">
+                  <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider whitespace-nowrap">
                     Standard
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider">
+                  <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider">
                     Description
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider whitespace-nowrap">
                     Fe Range
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider whitespace-nowrap">
                     C Range
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-dark-700 uppercase tracking-wider whitespace-nowrap">
                     Actions
                   </th>
                 </tr>
@@ -284,49 +285,49 @@ const GradeSpecs = () => {
               <tbody className="bg-white divide-y divide-dark-200">
                 {filteredGrades.map((spec) => (
                   <tr key={spec._id} className="hover:bg-dark-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-mono font-bold text-dark-900">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <span className="font-mono font-bold text-dark-900 text-xs sm:text-sm">
                         {spec.grade}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-600">
+                    <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-dark-600">
                       {spec.standard}
                     </td>
-                    <td className="px-6 py-4 text-sm text-dark-600">
+                    <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-dark-600 max-w-xs truncate">
                       {spec.description}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark-900">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-dark-900">
                       {spec.composition_ranges?.Fe
                         ? `${spec.composition_ranges.Fe[0]}-${spec.composition_ranges.Fe[1]}%`
                         : "N/A"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark-900">
+                    <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-dark-900">
                       {spec.composition_ranges?.C
                         ? `${spec.composition_ranges.C[0]}-${spec.composition_ranges.C[1]}%`
                         : "N/A"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-2">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex gap-1 sm:gap-2">
                         <button
                           onClick={() => handleViewGrade(spec)}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-blue-600 hover:text-blue-800 p-1"
                           title="View Details"
                         >
-                          <Eye size={18} />
+                          <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
                         <button
                           onClick={() => handleOpenModal(spec)}
-                          className="text-primary-600 hover:text-primary-800"
+                          className="text-primary-600 hover:text-primary-800 p-1"
                           title="Edit"
                         >
-                          <Edit size={18} />
+                          <Edit size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
                         <button
                           onClick={() => handleDelete(spec._id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 hover:text-red-800 p-1"
                           title="Delete"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
                       </div>
                     </td>

@@ -16,7 +16,7 @@ const Table = ({
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className="px-6 py-4 text-left text-xs font-bold text-metal-700 uppercase tracking-wider"
+                  className="px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-left text-xs font-bold text-metal-700 uppercase tracking-wider whitespace-nowrap"
                 >
                   {column.header}
                 </th>
@@ -27,7 +27,7 @@ const Table = ({
             {[...Array(5)].map((_, index) => (
               <tr key={index} className="animate-pulse border-b border-metal-100">
                 {columns.map((_, colIndex) => (
-                  <td key={colIndex} className="px-6 py-4">
+                  <td key={colIndex} className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
                     <div className="h-4 bg-metal-200 rounded w-3/4"></div>
                   </td>
                 ))}
@@ -56,7 +56,7 @@ const Table = ({
               <th
                 key={index}
                 className={clsx(
-                  "px-6 py-4 text-left text-xs font-bold text-metal-700 uppercase tracking-wider",
+                  "px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-left text-xs font-bold text-metal-700 uppercase tracking-wider whitespace-nowrap",
                   column.headerClassName
                 )}
               >
@@ -72,7 +72,7 @@ const Table = ({
                 <td
                   key={colIndex}
                   className={clsx(
-                    "px-6 py-4 text-sm text-metal-900 font-medium",
+                    "px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-xs sm:text-sm text-metal-900 font-medium",
                     column.cellClassName
                   )}
                 >

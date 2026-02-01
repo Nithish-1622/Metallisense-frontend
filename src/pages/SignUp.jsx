@@ -100,30 +100,30 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-4 py-12">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 px-3 sm:px-4 py-6 sm:py-12">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Logo and Title */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-emerald-600 mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-emerald-600 mb-1 sm:mb-2">
             MetalliSense
           </h1>
-          <p className="text-gray-600">Create your account</p>
+          <p className="text-gray-600 text-sm sm:text-base">Create your account</p>
         </div>
 
         {/* Signup Form */}
-        <div className="bg-white rounded-lg shadow-2xl p-8 border border-gray-200">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="bg-white rounded-lg shadow-2xl p-5 sm:p-8 border border-gray-200">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             {/* Name Input */}
             <div>
               <label
                 htmlFor="displayName"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2"
               >
                 Full Name
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
                 <Input
                   id="displayName"
@@ -132,12 +132,12 @@ export default function Signup() {
                   value={formData.displayName}
                   onChange={handleChange}
                   placeholder="John Doe"
-                  className="pl-10"
+                  className="pl-9 sm:pl-10"
                   required
                 />
               </div>
               {errors.displayName && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-xs sm:text-sm text-red-600">
                   {errors.displayName}
                 </p>
               )}
@@ -147,13 +147,13 @@ export default function Signup() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2"
               >
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
                 <Input
                   id="email"
@@ -162,12 +162,12 @@ export default function Signup() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
-                  className="pl-10"
+                  className="pl-9 sm:pl-10"
                   required
                 />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.email}</p>
               )}
             </div>
 
@@ -175,13 +175,13 @@ export default function Signup() {
             <div>
               <label
                 htmlFor="role"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2"
               >
                 Role
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Briefcase className="h-5 w-5 text-gray-400" />
+                  <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
                 <Select
                   id="role"
@@ -189,7 +189,7 @@ export default function Signup() {
                   value={formData.role}
                   onChange={handleChange}
                   options={roles}
-                  className="pl-10"
+                  className="pl-9 sm:pl-10"
                 />
               </div>
             </div>
@@ -198,13 +198,13 @@ export default function Signup() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2"
               >
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
                 <Input
                   id="password"
@@ -213,12 +213,12 @@ export default function Signup() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="pl-10"
+                  className="pl-9 sm:pl-10"
                   required
                 />
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.password}</p>
               )}
             </div>
 
@@ -226,13 +226,13 @@ export default function Signup() {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2"
               >
                 Confirm Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                 </div>
                 <Input
                   id="confirmPassword"
@@ -241,12 +241,12 @@ export default function Signup() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="pl-10"
+                  className="pl-9 sm:pl-10"
                   required
                 />
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-xs sm:text-sm text-red-600">
                   {errors.confirmPassword}
                 </p>
               )}
@@ -256,14 +256,14 @@ export default function Signup() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full flex items-center justify-center space-x-2 mt-6"
+              className="w-full flex items-center justify-center space-x-2 mt-4 sm:mt-6"
               disabled={isLoading}
             >
               {isLoading ? (
                 <span>Creating account...</span>
               ) : (
                 <>
-                  <UserPlus className="h-5 w-5" />
+                  <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>Create Account</span>
                 </>
               )}
@@ -271,12 +271,12 @@ export default function Signup() {
           </form>
 
           {/* Divider */}
-          <div className="mt-6">
+          <div className="mt-4 sm:mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
+              <div className="relative flex justify-center text-xs sm:text-sm">
                 <span className="px-2 bg-white text-gray-500">
                   Or continue with
                 </span>
@@ -285,14 +285,14 @@ export default function Signup() {
           </div>
 
           {/* Google Sign Up Button */}
-          <div className="mt-6">
+          <div className="mt-4 sm:mt-6">
             <button
               type="button"
               onClick={handleGoogleSignup}
               disabled={isLoading}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -315,8 +315,8 @@ export default function Signup() {
           </div>
 
           {/* Login Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="mt-4 sm:mt-6 text-center">
+            <p className="text-xs sm:text-sm text-gray-600">
               Already have an account?{" "}
               <Link
                 to="/login"

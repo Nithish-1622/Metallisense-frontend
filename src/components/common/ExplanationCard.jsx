@@ -58,10 +58,10 @@ const ExplanationCard = ({ explanation }) => {
   };
 
   return (
-    <Card className="mt-4">
-      <div className="flex items-start justify-between mb-4">
+    <Card className="mt-3 sm:mt-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-0 mb-3 sm:mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
             AI Explanation
           </h3>
           {explanation.risk_level && (
@@ -75,6 +75,7 @@ const ExplanationCard = ({ explanation }) => {
           size="sm"
           onClick={handleReadAloud}
           disabled={isSpeaking}
+          className="self-start sm:self-auto"
         >
           {isSpeaking ? (
             <>
@@ -86,18 +87,18 @@ const ExplanationCard = ({ explanation }) => {
         </Button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div>
-          <h4 className="font-medium text-gray-700 mb-2">Summary</h4>
-          <p className="text-gray-600">{explanation.summary}</p>
+          <h4 className="font-medium text-gray-700 text-sm sm:text-base mb-1 sm:mb-2">Summary</h4>
+          <p className="text-gray-600 text-xs sm:text-sm">{explanation.summary}</p>
         </div>
 
         {explanation.key_factors && explanation.key_factors.length > 0 && (
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Key Factors</h4>
+            <h4 className="font-medium text-gray-700 text-sm sm:text-base mb-1 sm:mb-2">Key Factors</h4>
             <ul className="list-disc list-inside space-y-1">
               {explanation.key_factors.map((factor, index) => (
-                <li key={index} className="text-gray-600">
+                <li key={index} className="text-gray-600 text-xs sm:text-sm">
                   {factor}
                 </li>
               ))}
@@ -107,15 +108,15 @@ const ExplanationCard = ({ explanation }) => {
 
         {explanation.confidence && (
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Confidence</h4>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 bg-gray-200 rounded-full h-2">
+            <h4 className="font-medium text-gray-700 text-sm sm:text-base mb-1 sm:mb-2">Confidence</h4>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex-1 bg-gray-200 rounded-full h-1.5 sm:h-2">
                 <div
-                  className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-emerald-600 h-1.5 sm:h-2 rounded-full transition-all duration-300"
                   style={{ width: `${explanation.confidence * 100}%` }}
                 />
               </div>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-xs sm:text-sm font-medium text-gray-700">
                 {(explanation.confidence * 100).toFixed(1)}%
               </span>
             </div>
@@ -124,19 +125,19 @@ const ExplanationCard = ({ explanation }) => {
 
         {explanation.recommendation && (
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Recommendation</h4>
-            <p className="text-gray-600">{explanation.recommendation}</p>
+            <h4 className="font-medium text-gray-700 text-sm sm:text-base mb-1 sm:mb-2">Recommendation</h4>
+            <p className="text-gray-600 text-xs sm:text-sm">{explanation.recommendation}</p>
           </div>
         )}
 
         {explanation.action_items && explanation.action_items.length > 0 && (
           <div>
-            <h4 className="font-medium text-gray-700 mb-2">Action Items</h4>
-            <ul className="space-y-2">
+            <h4 className="font-medium text-gray-700 text-sm sm:text-base mb-1 sm:mb-2">Action Items</h4>
+            <ul className="space-y-1 sm:space-y-2">
               {explanation.action_items.map((item, index) => (
                 <li key={index} className="flex items-start gap-2">
-                  <span className="text-emerald-600 mt-1">✓</span>
-                  <span className="text-gray-600">{item}</span>
+                  <span className="text-emerald-600 mt-0.5 text-xs sm:text-sm">✓</span>
+                  <span className="text-gray-600 text-xs sm:text-sm">{item}</span>
                 </li>
               ))}
             </ul>

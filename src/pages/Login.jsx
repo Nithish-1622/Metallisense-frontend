@@ -331,7 +331,7 @@ export default function Login() {
 
   return (
     <div 
-      className="min-h-screen w-screen overflow-auto flex items-center justify-center p-8 relative"
+      className="min-h-screen w-screen overflow-auto flex items-center justify-center p-4 sm:p-6 md:p-8 relative"
       style={{
         background: "#f7fef9",
       }}
@@ -424,40 +424,40 @@ export default function Login() {
         {/* Right Side - Login Form */}
         <div className="w-full lg:w-[420px] flex items-center justify-center">
           <div 
-            className="w-full rounded-3xl shadow-2xl p-8 border border-white/60"
+            className="w-full rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 border border-white/60"
             style={{
               background: "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)",
               backdropFilter: "blur(20px)",
             }}
           >
           {/* Logo and Title */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-4 sm:mb-6">
             <img
               src={logo}
               alt="MetalliSense Logo"
-              className="h-14 w-auto mx-auto mb-3"
+              className="h-10 sm:h-14 w-auto mx-auto mb-2 sm:mb-3"
             />
-            <h1 className="text-xl font-bold text-gray-800">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-800">
               Sign in to your account
             </h1>
-            <p className="text-gray-500 mt-1 text-sm">
+            <p className="text-gray-500 mt-1 text-xs sm:text-sm">
               Access your metal analysis dashboard
             </p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {/* Email Input */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
               >
                 Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-emerald-500" />
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
                 </div>
                 <Input
                   id="email"
@@ -465,7 +465,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="pl-10"
+                  className="pl-9 sm:pl-10"
                   required
                 />
               </div>
@@ -475,13 +475,13 @@ export default function Login() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-xs sm:text-sm font-medium text-gray-700 mb-1"
               >
                 Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-emerald-500" />
+                  <Lock className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500" />
                 </div>
                 <Input
                   id="password"
@@ -489,7 +489,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="pl-10"
+                  className="pl-9 sm:pl-10"
                   required
                 />
               </div>
@@ -499,7 +499,7 @@ export default function Login() {
             <div className="flex items-center justify-end">
               <Link
                 to="/forgot-password"
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                className="text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 font-medium"
               >
                 Forgot password?
               </Link>
@@ -509,14 +509,14 @@ export default function Login() {
             <Button
               type="submit"
               variant="primary"
-              className="w-full flex items-center justify-center space-x-2 py-3"
+              className="w-full flex items-center justify-center space-x-2 py-2.5 sm:py-3"
               disabled={isLoading}
             >
               {isLoading ? (
                 <span>Signing in...</span>
               ) : (
                 <>
-                  <LogIn className="h-5 w-5" />
+                  <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span>Sign In</span>
                 </>
               )}
@@ -524,12 +524,12 @@ export default function Login() {
           </form>
 
           {/* Divider */}
-          <div className="my-5">
+          <div className="my-4 sm:my-5">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
+              <div className="relative flex justify-center text-xs sm:text-sm">
                 <span className="px-3 bg-white text-gray-500 rounded">
                   Or continue with
                 </span>
@@ -542,9 +542,9 @@ export default function Login() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="w-full flex items-center justify-center px-4 py-2.5 sm:py-3 border border-gray-200 rounded-xl shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -566,8 +566,8 @@ export default function Login() {
           </button>
 
           {/* Sign Up Link */}
-          <div className="mt-5 text-center">
-            <p className="text-sm text-gray-600">
+          <div className="mt-4 sm:mt-5 text-center">
+            <p className="text-xs sm:text-sm text-gray-600">
               Don't have an account?{" "}
               <Link
                 to="/signup"

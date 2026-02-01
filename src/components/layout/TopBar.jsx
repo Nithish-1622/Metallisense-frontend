@@ -19,15 +19,17 @@ const TopBar = ({ title, actions }) => {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm border-b border-metal-200 px-6 py-4 shadow-sm">
+    <div className="bg-white/80 backdrop-blur-sm border-b border-metal-200 px-3 sm:px-4 md:px-6 py-3 sm:py-4 shadow-sm">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="w-1.5 h-10 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full shadow-md" />
-          <h1 className="text-2xl font-bold text-metal-900">{title}</h1>
+        <div className="flex items-center gap-2 sm:gap-3 ml-10 sm:ml-0">
+          <div className="w-1 sm:w-1.5 h-8 sm:h-10 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full shadow-md" />
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-metal-900 truncate max-w-[150px] sm:max-w-none">{title}</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
           {actions}
-          <OPCStatusIndicator />
+          <div className="hidden sm:block">
+            <OPCStatusIndicator />
+          </div>
 
           {/* User Menu */}
           {user && (

@@ -131,14 +131,14 @@ const Recommendation = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-dark-900">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-dark-900">
             Alloy Recommendations
           </h1>
-          <p className="text-dark-600 mt-1">
+          <p className="text-dark-600 mt-1 text-sm sm:text-base">
             Generate synthetic readings and get AI-powered alloy addition
             recommendations
           </p>
@@ -146,7 +146,7 @@ const Recommendation = () => {
 
         {/* AI Status Badge */}
         <div
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+          className={`flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg self-start sm:self-auto ${
             aiAvailable
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
@@ -212,18 +212,18 @@ const Recommendation = () => {
             ).length > 0 && (
               <Card title="Recommended Alloy Additions">
                 <div className="space-y-4">
-                  <p className="text-sm text-dark-600 mb-4">
+                  <p className="text-xs sm:text-sm text-dark-600 mb-4">
                     The following element adjustments are recommended to
                     optimize the composition:
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
                     {Object.entries(
                       result.aiAnalysis.alloyRecommendation
                         .recommended_additions
                     ).map(([element, value]) => (
                       <div
                         key={element}
-                        className={`p-4 rounded-lg border-2 ${
+                        className={`p-3 sm:p-4 rounded-lg border-2 ${
                           value > 0
                             ? "bg-green-50 border-green-200"
                             : value < 0
@@ -232,7 +232,7 @@ const Recommendation = () => {
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-mono font-bold text-lg text-dark-900">
+                          <span className="font-mono font-bold text-base sm:text-lg text-dark-900">
                             {element}
                           </span>
                           {value !== 0 && (
@@ -242,7 +242,7 @@ const Recommendation = () => {
                           )}
                         </div>
                         <p
-                          className={`text-2xl font-bold ${
+                          className={`text-xl sm:text-2xl font-bold ${
                             value > 0
                               ? "text-green-600"
                               : value < 0
@@ -265,21 +265,21 @@ const Recommendation = () => {
             result.aiAnalysis.alloyRecommendation.alternative_grades.length >
               0 && (
               <Card title="Alternative Grades">
-                <p className="text-sm text-dark-600 mb-4">
+                <p className="text-xs sm:text-sm text-dark-600 mb-4">
                   Other suitable grades based on the composition:
                 </p>
-                <div className="grid gap-3">
+                <div className="grid gap-2 sm:gap-3">
                   {result.aiAnalysis.alloyRecommendation.alternative_grades.map(
                     (grade, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 bg-dark-50 rounded-lg hover:bg-dark-100 transition-colors border border-dark-200"
+                        className="flex items-center justify-between p-3 sm:p-4 bg-dark-50 rounded-lg hover:bg-dark-100 transition-colors border border-dark-200"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-600 font-bold">
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary-100 text-primary-600 font-bold text-sm">
                             {index + 1}
                           </div>
-                          <span className="text-lg font-semibold text-dark-900 font-mono">
+                          <span className="text-base sm:text-lg font-semibold text-dark-900 font-mono">
                             {typeof grade === "string" ? grade : grade.name}
                           </span>
                         </div>
@@ -300,26 +300,26 @@ const Recommendation = () => {
           {/* Synthetic Reading Details */}
           <Card title="Generated Composition">
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-dark-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-dark-200 gap-2">
                 <div>
-                  <h3 className="text-sm font-medium text-dark-600">
+                  <h3 className="text-xs sm:text-sm font-medium text-dark-600">
                     Metal Grade
                   </h3>
-                  <p className="text-lg font-bold text-dark-900 font-mono">
+                  <p className="text-base sm:text-lg font-bold text-dark-900 font-mono">
                     {syntheticReading.metalGrade}
                   </p>
                 </div>
-                <div className="text-right">
-                  <h3 className="text-sm font-medium text-dark-600">
+                <div className="sm:text-right">
+                  <h3 className="text-xs sm:text-sm font-medium text-dark-600">
                     Deviation Applied
                   </h3>
-                  <p className="text-lg font-bold text-primary-600">
+                  <p className="text-base sm:text-lg font-bold text-primary-600">
                     {syntheticReading.deviationPercentage}%
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
                 {Object.entries(syntheticReading.composition).map(
                   ([element, value]) => {
                     const isDeviated =
@@ -327,14 +327,14 @@ const Recommendation = () => {
                     return (
                       <div
                         key={element}
-                        className={`p-3 rounded-lg ${
+                        className={`p-2 sm:p-3 rounded-lg ${
                           isDeviated
                             ? "bg-yellow-50 border-2 border-yellow-300"
                             : "bg-dark-50 border border-dark-200"
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-mono font-bold text-sm text-dark-900">
+                        <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                          <span className="font-mono font-bold text-xs sm:text-sm text-dark-900">
                             {element}
                           </span>
                           {isDeviated && (
@@ -343,7 +343,7 @@ const Recommendation = () => {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-lg font-bold text-dark-900">
+                        <p className="text-base sm:text-lg font-bold text-dark-900">
                           {formatPercentage(value)}
                         </p>
                       </div>
@@ -461,10 +461,10 @@ const Recommendation = () => {
       {result && (
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className="fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-3 sm:p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
           title="Open AI Copilot Chat"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       )}
 
