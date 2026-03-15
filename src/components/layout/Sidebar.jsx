@@ -148,8 +148,8 @@ const Sidebar = ({ setRunTour }) => {
             </div>
           </div>
 
-          {/* Menu Items with custom scrollbar */}
-          <div className="flex-1 px-4 py-3 overflow-y-auto custom-scrollbar">
+          {/* Menu Items - hidden scrollbar */}
+          <div className="flex-1 px-4 py-3 overflow-y-auto scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <div className="space-y-8">
               {/* Core Operations */}
               <div className="pb-1">

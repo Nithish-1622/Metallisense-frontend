@@ -45,27 +45,27 @@ const OPCStatusIndicator = () => {
   return (
     <div
       data-tour="opc-status"
-      className="flex items-center gap-3 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-xl border-2 border-metal-200 shadow-metal"
+      className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-sm px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 border-metal-200 shadow-metal"
     >
       {/* Status Indicator */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <div className="relative">
           <div
-            className={`h-3 w-3 rounded-full ${
+            className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${
               status.connected ? "bg-primary-500" : "bg-metal-400"
             }`}
           />
           {status.connected && (
-            <div className="absolute inset-0 h-3 w-3 rounded-full bg-primary-500 animate-ping opacity-75" />
+            <div className="absolute inset-0 h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-primary-500 animate-ping opacity-75" />
           )}
         </div>
-        <span className="text-sm font-semibold text-metal-800">
+        <span className="text-xs sm:text-sm font-semibold text-metal-800">
           {status.connected ? "Connected" : "Disconnected"}
         </span>
       </div>
 
       {/* Divider */}
-      <div className="h-6 w-px bg-metal-300" />
+      <div className="h-5 sm:h-6 w-px bg-metal-300" />
 
       
         <div className="flex gap-2">
@@ -76,10 +76,10 @@ const OPCStatusIndicator = () => {
           onClick={handleConnect}
           disabled={isLoading}
           loading={isLoading}
-          className="!py-1.5 !px-4 flex items-center gap-2"
+          className="!py-1 sm:!py-1.5 !px-2 sm:!px-4 flex items-center gap-1 sm:gap-2"
             >
-          <Wifi className="w-4 h-4" />
-          <span>Connect</span>
+          <Wifi className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="hidden xs:inline">Connect</span>
             </Button>
           ) : (
             <Button
@@ -88,10 +88,10 @@ const OPCStatusIndicator = () => {
           onClick={handleDisconnect}
           disabled={isLoading}
           loading={isLoading}
-          className="!py-1.5 !px-4 flex items-center gap-2"
+          className="!py-1 sm:!py-1.5 !px-2 sm:!px-4 flex items-center gap-1 sm:gap-2"
             >
-          <WifiOff className="w-4 h-4" />
-          <span>Disconnect</span>
+          <WifiOff className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="hidden xs:inline">Disconnect</span>
             </Button>
           )}
         </div>
@@ -101,8 +101,8 @@ const OPCStatusIndicator = () => {
         {/* Connection Animation Visualization */}
       {status.connected && (
         <>
-          <div className="h-6 w-px bg-metal-300" />
-          <div className="flex items-center gap-2">
+          <div className="h-5 sm:h-6 w-px bg-metal-300 hidden sm:block" />
+          <div className="hidden sm:flex items-center gap-2">
        
         {/* Flowing Data Particles */}
         <div className="flex gap-1">

@@ -114,16 +114,16 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 ">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4">
         {/* Header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-4">
-            <LayoutDashboard className="text-emerald-700 text-3xl" size={33} />
-            <h1 className="text-3xl font-bold md:text-4xl  text-slate-800 tracking-wide">
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <LayoutDashboard className="text-emerald-700 text-2xl sm:text-3xl" size={28} />
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800 tracking-wide">
               MetalliSense Dashboard
             </h1>
           </div>
-          <p className="text-slate-600 text-lg font-light leading-relaxed">
+          <p className="text-slate-600 text-sm sm:text-base md:text-lg font-light leading-relaxed">
             Real-time monitoring and analytics for spectrometer operations
           </p>
         </div>
@@ -131,7 +131,7 @@ const Dashboard = () => {
         {/* KPI Cards */}
         <div
           data-tour="dashboard-stats"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10"
         >
           {/* OPC Status Card */}
           <div className="bg-gradient-to-br from-emerald-50 to-white rounded-xl shadow-lg border border-emerald-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -251,22 +251,23 @@ const Dashboard = () => {
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10">
           {/* Readings Chart */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-slate-800 mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 md:p-6">
+            <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-3 sm:mb-4">
               Readings Over Time
             </h3>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
+                <XAxis dataKey="name" stroke="#64748b" fontSize={10} tick={{ fontSize: 10 }} />
+                <YAxis stroke="#64748b" fontSize={10} tick={{ fontSize: 10 }} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "white",
                     border: "1px solid #e2e8f0",
                     borderRadius: "8px",
+                    fontSize: "12px",
                   }}
                 />
                 <Line
@@ -274,27 +275,28 @@ const Dashboard = () => {
                   dataKey="readings"
                   stroke="#10b981"
                   strokeWidth={2}
-                  dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
+                  dot={{ fill: "#10b981", strokeWidth: 2, r: 3 }}
                 />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           {/* Anomalies Chart */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-slate-800 mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 md:p-6">
+            <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-3 sm:mb-4">
               Weekly Anomalies
             </h3>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <BarChart data={weeklyAnomaliesData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="day" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
+                <XAxis dataKey="day" stroke="#64748b" fontSize={10} tick={{ fontSize: 10 }} />
+                <YAxis stroke="#64748b" fontSize={10} tick={{ fontSize: 10 }} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "white",
                     border: "1px solid #e2e8f0",
                     borderRadius: "8px",
+                    fontSize: "12px",
                   }}
                 />
                 <Bar dataKey="anomalies" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -303,18 +305,18 @@ const Dashboard = () => {
           </div>
 
           {/* Grade Distribution */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-medium text-slate-800 mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 md:p-6 md:col-span-2 lg:col-span-1">
+            <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-3 sm:mb-4">
               Grade Distribution
             </h3>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <PieChart>
                 <Pie
                   data={gradeDistributionData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
+                  innerRadius={35}
+                  outerRadius={70}
                   dataKey="value"
                 >
                   {gradeDistributionData.map((entry, index) => (
@@ -326,6 +328,7 @@ const Dashboard = () => {
                     backgroundColor: "white",
                     border: "1px solid #e2e8f0",
                     borderRadius: "8px",
+                    fontSize: "12px",
                   }}
                 />
               </PieChart>
@@ -334,24 +337,24 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-slate-800 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 md:p-6">
+          <h3 className="text-base sm:text-lg font-medium text-slate-800 mb-4 sm:mb-6">
             Recent Activity
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {recentActivity.map((activity) => (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 p-3 rounded-lg transition-all duration-200"
+                className="flex items-start gap-2 sm:gap-3 pb-3 sm:pb-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 p-2 sm:p-3 rounded-lg transition-all duration-200"
               >
-                <div className="mt-1.5">
-                  <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                <div className="mt-1 sm:mt-1.5">
+                  <div className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-emerald-500" />
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-800">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-slate-800 truncate">
                     {activity.message}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">{activity.time}</p>
+                  <p className="text-xs text-slate-500 mt-0.5 sm:mt-1">{activity.time}</p>
                 </div>
               </div>
             ))}

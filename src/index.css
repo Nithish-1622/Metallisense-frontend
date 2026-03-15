@@ -111,4 +111,9 @@
     background-color: #9eafc0;
     color: white;
   }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }

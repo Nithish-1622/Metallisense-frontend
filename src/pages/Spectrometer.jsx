@@ -128,10 +128,10 @@ const Spectrometer = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Control Panel */}
       <Card title="OPC Control Panel">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
               className={`h-3 w-3 rounded-full ${
@@ -140,7 +140,7 @@ const Spectrometer = () => {
                   : "bg-red-500"
               }`}
             />
-            <span className="font-medium">
+            <span className="font-medium text-sm sm:text-base">
               Status: {opcStatus.connected ? "Connected" : "Disconnected"}
             </span>
           </div>
@@ -148,6 +148,7 @@ const Spectrometer = () => {
             onClick={handleRequestReading}
             loading={requesting}
             disabled={!opcStatus.connected}
+            className="self-start sm:self-auto"
           >
             Request Reading
           </Button>
@@ -157,7 +158,7 @@ const Spectrometer = () => {
       {/* Latest Reading */}
       {latestReading && (
         <Card title="Latest Reading">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-4">
             {Object.entries(latestReading.composition || latestReading)
               .filter(
                 ([key]) =>
@@ -166,17 +167,17 @@ const Spectrometer = () => {
                   key !== "createdAt"
               )
               .map(([element, value]) => (
-                <div key={element} className="p-4 bg-dark-50 rounded-lg">
-                  <span className="font-mono font-bold text-sm text-dark-600">
+                <div key={element} className="p-3 sm:p-4 bg-dark-50 rounded-lg">
+                  <span className="font-mono font-bold text-xs sm:text-sm text-dark-600">
                     {element}
                   </span>
-                  <p className="text-xl font-bold text-dark-900 mt-1">
+                  <p className="text-lg sm:text-xl font-bold text-dark-900 mt-1">
                     {formatPercentage(value)}
                   </p>
                 </div>
               ))}
           </div>
-          <p className="text-xs text-dark-500 mt-4">
+          <p className="text-xs text-dark-500 mt-3 sm:mt-4">
             Received:{" "}
             {formatDate(latestReading.timestamp || latestReading.createdAt)}
           </p>

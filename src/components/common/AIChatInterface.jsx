@@ -129,21 +129,21 @@ const AIChatInterface = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 w-96 h-[32rem] flex flex-col bg-white rounded-lg shadow-2xl border border-gray-200 z-50">
+    <div className="fixed bottom-2 right-2 sm:bottom-4 sm:right-4 w-[calc(100vw-1rem)] sm:w-96 h-[28rem] sm:h-[32rem] flex flex-col bg-white rounded-lg shadow-2xl border border-gray-200 z-50 max-w-md">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-emerald-600 rounded-t-lg">
-        <h3 className="font-semibold text-white">AI Copilot</h3>
-        <div className="flex gap-2">
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-emerald-600 rounded-t-lg">
+        <h3 className="font-semibold text-white text-sm sm:text-base">AI Copilot</h3>
+        <div className="flex gap-1 sm:gap-2">
           <button
             onClick={handleClearHistory}
-            className="text-white hover:bg-emerald-700 p-1 rounded transition-colors"
+            className="text-white hover:bg-emerald-700 p-1 sm:p-1.5 rounded transition-colors text-sm"
             title="Clear history"
           >
             🗑️
           </button>
           <button
             onClick={onClose}
-            className="text-white hover:bg-emerald-700 p-1 rounded transition-colors"
+            className="text-white hover:bg-emerald-700 p-1 sm:p-1.5 rounded transition-colors text-sm"
           >
             ✕
           </button>
@@ -151,12 +151,12 @@ const AIChatInterface = ({ isOpen, onClose }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-500 mt-8">
-            <p className="mb-4">👋 Hi! I'm your AI assistant.</p>
-            <p className="text-sm">Ask me anything about your analysis!</p>
-            <div className="mt-6 space-y-2">
+          <div className="text-center text-gray-500 mt-4 sm:mt-8">
+            <p className="mb-3 sm:mb-4 text-sm sm:text-base">👋 Hi! I'm your AI assistant.</p>
+            <p className="text-xs sm:text-sm">Ask me anything about your analysis!</p>
+            <div className="mt-4 sm:mt-6 space-y-1 sm:space-y-2">
               <p className="text-xs font-medium text-gray-600">
                 Suggested questions:
               </p>
@@ -164,7 +164,7 @@ const AIChatInterface = ({ isOpen, onClose }) => {
                 <button
                   key={index}
                   onClick={() => handleSendMessage(question)}
-                  className="block w-full text-left text-sm text-emerald-600 hover:bg-emerald-50 p-2 rounded transition-colors"
+                  className="block w-full text-left text-xs sm:text-sm text-emerald-600 hover:bg-emerald-50 p-1.5 sm:p-2 rounded transition-colors"
                 >
                   {question}
                 </button>
@@ -180,13 +180,13 @@ const AIChatInterface = ({ isOpen, onClose }) => {
               }`}
             >
               <div
-                className={`max-w-[80%] p-3 rounded-lg ${
+                className={`max-w-[85%] p-2 sm:p-3 rounded-lg ${
                   message.role === "user"
                     ? "bg-emerald-600 text-white"
                     : "bg-gray-100 text-gray-900"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">
+                <p className="text-xs sm:text-sm whitespace-pre-wrap">
                   {message.content}
                 </p>
               </div>
@@ -195,15 +195,15 @@ const AIChatInterface = ({ isOpen, onClose }) => {
         )}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-100 p-3 rounded-lg">
+            <div className="bg-gray-100 p-2 sm:p-3 rounded-lg">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce" />
                 <span
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce"
                   style={{ animationDelay: "0.1s" }}
                 />
                 <span
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce"
                   style={{ animationDelay: "0.2s" }}
                 />
               </div>
@@ -214,25 +214,25 @@ const AIChatInterface = ({ isOpen, onClose }) => {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-3 sm:p-4 border-t border-gray-200">
         {isTranscribing && (
-          <div className="mb-2 text-sm text-emerald-600 flex items-center gap-2">
+          <div className="mb-2 text-xs sm:text-sm text-emerald-600 flex items-center gap-2">
             <span className="animate-pulse">🎤</span> Transcribing...
           </div>
         )}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 sm:gap-2">
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
             placeholder="Ask me anything..."
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
+            className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
             disabled={isLoading || isTranscribing}
           />
           <button
             onClick={isRecording ? stopRecording : startRecording}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`p-1.5 sm:p-2 rounded-lg transition-colors text-sm ${
               isRecording
                 ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
                 : "bg-gray-200 hover:bg-gray-300 text-gray-700"

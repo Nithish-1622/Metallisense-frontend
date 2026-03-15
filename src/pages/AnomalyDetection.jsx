@@ -130,11 +130,11 @@ const AnomalyDetection = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-dark-900">Anomaly Detection</h1>
-        <p className="text-dark-600 mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-dark-900">Anomaly Detection</h1>
+        <p className="text-dark-600 mt-1 text-sm sm:text-base">
           Generate synthetic readings and detect composition anomalies
         </p>
       </div>
@@ -149,8 +149,8 @@ const AnomalyDetection = () => {
       {analyzing && (
         <Card>
           <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-            <span className="text-dark-700">
+            <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-primary-600"></div>
+            <span className="text-dark-700 text-sm sm:text-base">
               Analyzing composition for anomalies...
             </span>
           </div>
@@ -162,8 +162,8 @@ const AnomalyDetection = () => {
         <>
           {/* Generated Reading Card */}
           <Card>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-dark-900">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-4">
+              <h3 className="text-base sm:text-lg font-semibold text-dark-900">
                 Generated Reading
               </h3>
               <Badge variant="info">{generatedReading.metalGrade}</Badge>
@@ -172,10 +172,10 @@ const AnomalyDetection = () => {
             <div className="space-y-4">
               {/* Composition */}
               <div>
-                <p className="text-sm font-medium text-dark-700 mb-2">
+                <p className="text-xs sm:text-sm font-medium text-dark-700 mb-2">
                   Composition
                 </p>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 sm:gap-3">
                   {Object.entries(generatedReading.composition || {}).map(
                     ([element, value]) => {
                       const isDeviated =
@@ -233,7 +233,7 @@ const AnomalyDetection = () => {
                 )}
 
               {/* Metadata */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm">
                 <div>
                   <span className="text-dark-600">Temperature:</span>{" "}
                   <span className="font-mono font-semibold text-dark-900">
@@ -265,22 +265,22 @@ const AnomalyDetection = () => {
           {/* Analysis Results */}
           {analysisResult && (
             <Card>
-              <h3 className="text-lg font-semibold text-dark-900 mb-4">
+              <h3 className="text-base sm:text-lg font-semibold text-dark-900 mb-4">
                 Analysis Results
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 {/* Anomaly Status */}
-                <div className="p-6 bg-dark-50 rounded-lg">
-                  <p className="text-sm font-medium text-dark-600 mb-3">
+                <div className="p-4 sm:p-6 bg-dark-50 rounded-lg">
+                  <p className="text-xs sm:text-sm font-medium text-dark-600 mb-2 sm:mb-3">
                     Anomaly Status
                   </p>
                   {analysisResult.severity === "HIGH" ||
                   analysisResult.severity === "MEDIUM" ? (
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-8 h-8 text-red-600" />
-                        <span className="text-lg font-bold text-red-600">
+                        <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" />
+                        <span className="text-base sm:text-lg font-bold text-red-600">
                           Anomaly Detected
                         </span>
                       </div>
@@ -297,8 +297,8 @@ const AnomalyDetection = () => {
                   ) : (
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-8 h-8 text-green-600" />
-                        <span className="text-lg font-bold text-green-600">
+                        <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
+                        <span className="text-base sm:text-lg font-bold text-green-600">
                           Normal
                         </span>
                       </div>
@@ -310,14 +310,14 @@ const AnomalyDetection = () => {
                 </div>
 
                 {/* Anomaly Score */}
-                <div className="p-6 bg-dark-50 rounded-lg">
-                  <p className="text-sm font-medium text-dark-600 mb-2">
+                <div className="p-4 sm:p-6 bg-dark-50 rounded-lg">
+                  <p className="text-xs sm:text-sm font-medium text-dark-600 mb-2">
                     Anomaly Score
                   </p>
-                  <p className="text-3xl font-bold text-dark-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-dark-900">
                     {(analysisResult.anomaly_score || 0).toFixed(2)}
                   </p>
-                  <div className="mt-3 w-full bg-dark-200 rounded-full h-2">
+                  <div className="mt-2 sm:mt-3 w-full bg-dark-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full ${
                         (analysisResult.anomaly_score || 0) > 0.5
@@ -335,11 +335,11 @@ const AnomalyDetection = () => {
                 </div>
 
                 {/* Message */}
-                <div className="p-6 bg-dark-50 rounded-lg">
-                  <p className="text-sm font-medium text-dark-600 mb-2">
+                <div className="p-4 sm:p-6 bg-dark-50 rounded-lg sm:col-span-2 md:col-span-1">
+                  <p className="text-xs sm:text-sm font-medium text-dark-600 mb-2">
                     Analysis Message
                   </p>
-                  <p className="text-sm text-dark-900">
+                  <p className="text-xs sm:text-sm text-dark-900">
                     {analysisResult.message || "No message available"}
                   </p>
                 </div>
@@ -347,18 +347,18 @@ const AnomalyDetection = () => {
 
               {/* Compliance Info */}
               {analysisResult.compliance && (
-                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm font-semibold text-blue-800 mb-2">
+                <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-xs sm:text-sm font-semibold text-blue-800 mb-2">
                     Overall Compliance:{" "}
                     <span
-                      className={`text-lg ${getComplianceColor(
+                      className={`text-base sm:text-lg ${getComplianceColor(
                         analysisResult.compliance.overallCompliance
                       )}`}
                     >
                       {analysisResult.compliance.overallCompliance?.toFixed(1)}%
                     </span>
                   </p>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-xs sm:text-sm text-blue-700">
                     {analysisResult.compliance.summary?.compliant || 0} /{" "}
                     {analysisResult.compliance.summary?.total || 0} elements
                     within specification
@@ -367,12 +367,12 @@ const AnomalyDetection = () => {
               )}
 
               {/* AI Explanation Button */}
-              <div className="mt-6">
+              <div className="mt-4 sm:mt-6">
                 <Button
                   onClick={handleGetAIExplanation}
                   loading={loadingExplanation}
                   disabled={loadingExplanation}
-                  className="w-full md:w-auto"
+                  className="w-full sm:w-auto"
                   variant="success"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
@@ -385,27 +385,27 @@ const AnomalyDetection = () => {
           {/* AI Explanation Display */}
           {aiExplanation && (
             <Card className="border-2 border-emerald-200">
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div 
-                  className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
+                  className="flex flex-wrap items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
                   onClick={audioUrl ? handlePlayAudio : undefined}
                   title={audioUrl ? (isPlaying ? 'Click to pause audio' : 'Click to play audio explanation') : 'Audio not available'}
                 >
-                  <Sparkles className="w-5 h-5" />
-                  <h3 className="text-lg font-semibold text-dark-900">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <h3 className="text-base sm:text-lg font-semibold text-dark-900">
                     Gemini AI Summary
                   </h3>
                   {audioUrl && (
-                    isPlaying ? <VolumeX className="w-5 h-5 text-emerald-600" /> : <Volume2 className="w-5 h-5 text-emerald-600" />
+                    isPlaying ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                   )}
                   <Badge variant="success" className="ml-auto">
                     Gemini Powered
                   </Badge>
                 </div>
                 
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 sm:p-6">
                   <div className="prose prose-sm max-w-none">
-                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
+                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">
                       {aiExplanation}
                     </div>
                   </div>
@@ -421,12 +421,12 @@ const AnomalyDetection = () => {
 
       {/* Empty State */}
       {!generatedReading && !analyzing && (
-        <Card className="text-center py-12">
-          <AlertTriangle className="w-16 h-16 text-dark-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-dark-900 mb-2">
+        <Card className="text-center py-8 sm:py-12">
+          <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-dark-400 mx-auto mb-4" />
+          <h3 className="text-base sm:text-lg font-semibold text-dark-900 mb-2">
             No Data Generated
           </h3>
-          <p className="text-dark-600">
+          <p className="text-dark-600 text-sm sm:text-base">
             Generate a synthetic reading to begin anomaly detection
           </p>
         </Card>
@@ -436,10 +436,10 @@ const AnomalyDetection = () => {
       {analysisResult && (
         <button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          className="fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-3 sm:p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
           title="Open AI Copilot Chat"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       )}
 
