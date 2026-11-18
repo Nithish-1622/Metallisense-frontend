@@ -21,20 +21,28 @@ export const getExplanation = (data) =>
  * Send chat message to AI copilot
  * @param {string} message - User's question
  * @param {boolean} includeContext - Include latest analysis context
+ * @param {string} sessionId - Conversation/session identifier
  * @returns {Promise} Chat response
  */
-export const sendChatMessage = (message, includeContext = true) =>
+export const sendChatMessage = (
+  message,
+  includeContext = true,
+  sessionId
+) =>
   copilotApi.post("/copilot/chat", {
     message,
     include_context: includeContext,
+    ...(sessionId ? { session_id: sessionId } : {}),
   });
 
 /**
  * Clear conversation history
  * @returns {Promise} Success response
  */
-export const clearChatHistory = () =>
-  copilotApi.delete("/copilot/chat/history");
+export const clearChatHistory = (sessionId) =>
+  copilotApi.delete("/copilot/chat/history", {
+    params: sessionId ? { session_id: sessionId } : undefined,
+  });
 
 /**
  * Transcribe audio to text (Speech-to-Text)

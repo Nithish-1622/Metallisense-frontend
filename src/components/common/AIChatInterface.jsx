@@ -1,54 +1,265 @@
-import { useState, useRef, useEffect } from "react";
-import Card from "./Card";
-import Button from "./Button";
+import { useEffect, useRef, useState } from "react";
+import {
+  Mic,
+  Square,
+  Send,
+  Trash2,
+  X,
+  Volume2,
+  VolumeX,
+  Keyboard,
+  RotateCcw,
+  Sparkles,
+  Globe2,
+  ChevronDown,
+  Play,
+} from "lucide-react";
 import {
   sendChatMessage,
   transcribeAudio,
   clearChatHistory,
+  getSupportedLanguages,
+  synthesizeSpeech,
 } from "../../services/copilotService";
 import toast from "react-hot-toast";
+import copilotLogo from "../../assets/Metallisense-logo.png";
 
-const AIChatInterface = ({ isOpen, onClose }) => {
+const createSessionId = () =>
+  globalThis.crypto?.randomUUID?.() ||
+  `copilot-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+const formatAssistantResponse = (content) =>
+  String(content || "")
+    .replace(/\r/g, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+const stripMarkdown = (value) =>
+  String(value || "")
+    .replace(/\*\*/g, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^[-#>\s]+/, "")
+    .trim();
+
+const AssistantResponse = ({ content }) => {
+  const lines = formatAssistantResponse(content);
+  const tableIndex = lines.findIndex((line) => line.startsWith("|"));
+  const tableBlocks = [];
+
+  if (tableIndex >= 0) {
+    const tableLines = lines.slice(tableIndex).filter(
+      (line) => line.startsWith("|")
+    );
+    if (tableLines.length >= 2) {
+      tableLines.forEach((line) => {
+        const cells = line
+          .split("|")
+          .slice(1, -1)
+          .map((cell) => stripMarkdown(cell));
+        if (!cells.every((cell) => /^-+$/.test(cell.replace(/\s/g, "")))) {
+          tableBlocks.push(cells);
+        }
+      });
+    }
+  }
+
+  const introLines = tableIndex >= 0 ? lines.slice(0, tableIndex) : lines;
+  const title = introLines.find((line) => !/^[-*]/.test(line));
+  const descriptionLines = introLines.filter((line) => line !== title);
+
+  return (
+    <div className="space-y-3">
+      {title && (
+        <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-white px-3.5 py-3">
+          <p className="text-sm font-semibold text-slate-900">
+            {stripMarkdown(title)}
+          </p>
+          {descriptionLines.length > 0 && (
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              {descriptionLines.map(stripMarkdown).join(" ")}
+            </p>
+          )}
+        </div>
+      )}
+
+      {tableBlocks.length > 1 && (
+        <div className="grid gap-2">
+          {tableBlocks.slice(1).map((cells, index) => (
+            <div
+              key={`${cells[0]}-${index}`}
+              className="group rounded-2xl border border-slate-100 bg-white/80 p-3 shadow-[0_8px_24px_rgba(15,23,42,.04)]"
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-sm font-bold text-emerald-700">
+                  {index + 1}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {cells[0] || `Insight ${index + 1}`}
+                  </p>
+                  {cells.slice(1).map((cell, cellIndex) => (
+                    <p
+                      key={cellIndex}
+                      className="mt-1 text-xs leading-5 text-slate-600"
+                    >
+                      {cell}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!tableBlocks.length &&
+        lines
+          .filter((line) => !line.startsWith("|"))
+          .map((line, lineIndex) =>
+            /^[-*]\s/.test(line) ? (
+              <div
+                key={lineIndex}
+                className="flex items-start gap-2 rounded-xl bg-emerald-50/70 px-3 py-2"
+              >
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                <span className="text-xs leading-5 text-slate-700">
+                  {stripMarkdown(line)}
+                </span>
+              </div>
+            ) : (
+              <p key={lineIndex} className="text-sm leading-6 text-slate-700">
+                {stripMarkdown(line)}
+              </p>
+            )
+          )}
+    </div>
+  );
+};
+
+const AIChatInterface = ({ isOpen = false, onClose = () => {} }) => {
+  const [open, setOpen] = useState(isOpen);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [sessionId, setSessionId] = useState(createSessionId);
+  const [languages, setLanguages] = useState([]);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [providerError, setProviderError] = useState("");
+  const recordingStartedAtRef = useRef(null);
+  const [speakingIndex, setSpeakingIndex] = useState(null);
+  const [micLevels, setMicLevels] = useState([8, 10, 13, 9, 12, 8, 11, 9]);
+
   const messagesEndRef = useRef(null);
   const mediaRecorderRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const animationFrameRef = useRef(null);
   const audioChunksRef = useRef([]);
+  const speechAudioRef = useRef(null);
+  const speechUrlRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => setOpen(isOpen), [isOpen]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    getSupportedLanguages()
+      .then((response) => {
+        const data =
+          response.data?.languages ||
+          response.data?.data?.languages ||
+          response.data;
+        if (Array.isArray(data)) setLanguages(data);
+        else if (data && typeof data === "object")
+          setLanguages(Object.keys(data));
+      })
+      .catch((error) => {
+        setProviderError(
+          error.response?.data?.message ||
+            "Voice language service is unavailable."
+        );
+      });
+
+    return () => {
+      speechAudioRef.current?.pause();
+      if (speechUrlRef.current) URL.revokeObjectURL(speechUrlRef.current);
+      stopRecordingResources();
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleShortcut = (event) => {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "m") {
+        event.preventDefault();
+        setOpen(true);
+        if (!isRecording) startRecording();
+        else stopRecording();
+      }
+    };
+
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, [isRecording]);
+
+  const stopRecordingResources = () => {
+    if (animationFrameRef.current)
+      cancelAnimationFrame(animationFrameRef.current);
+    if (analyserRef.current) analyserRef.current.disconnect();
+    if (audioContextRef.current?.state !== "closed")
+      audioContextRef.current?.close();
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+  };
+
+  const closePanel = () => {
+    setOpen(false);
+    onClose();
+  };
 
   const handleSendMessage = async (messageText = inputMessage) => {
-    if (!messageText.trim() || isLoading) return;
+    const text = messageText.trim();
+    if (!text || isLoading) return;
 
-    const userMessage = { role: "user", content: messageText };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((current) => [...current, { role: "user", content: text }]);
     setInputMessage("");
     setIsLoading(true);
+    setProviderError("");
 
     try {
-      const response = await sendChatMessage(messageText, true);
-      const aiMessage = {
-        role: "assistant",
-        content: response.data.response,
-      };
-      setMessages((prev) => [...prev, aiMessage]);
+      const response = await sendChatMessage(text, true, sessionId);
+      const data = response.data?.data || response.data;
+      const serverSessionId = data?.session_id || response.data?.session_id;
+      if (serverSessionId) setSessionId(serverSessionId);
+      const reply =
+        data?.response ||
+        data?.message ||
+        response.data?.response ||
+        "No response was returned.";
+      setMessages((current) => [
+        ...current,
+        { role: "assistant", content: reply },
+      ]);
     } catch (error) {
-      console.error("Chat error:", error);
-      toast.error("Failed to get response from AI");
-      const errorMessage = {
-        role: "assistant",
-        content: "I apologize, but I encountered an error. Please try again.",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "The AI provider is unavailable.";
+      setProviderError(message);
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content:
+            "I could not complete that request. Check the provider status and retry.",
+          error: true,
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -56,202 +267,472 @@ const AIChatInterface = ({ isOpen, onClose }) => {
 
   const handleClearHistory = async () => {
     try {
-      await clearChatHistory();
+      await clearChatHistory(sessionId);
       setMessages([]);
-      toast.success("Chat history cleared");
+      setSessionId(createSessionId());
+      setProviderError("");
+      toast.success("New Copilot session started");
     } catch (error) {
-      console.error("Clear history error:", error);
-      toast.error("Failed to clear history");
+      setProviderError(
+        error.response?.data?.message || "Could not clear chat history."
+      );
     }
   };
 
   const startRecording = async () => {
     try {
+      setOpen(true);
+      setProviderError("");
+      recordingStartedAtRef.current = Date.now();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
+      mediaStreamRef.current = stream;
+
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 64;
+      analyser.smoothingTimeConstant = 0.82;
+      analyserRef.current = analyser;
+      audioContextRef.current = audioContext;
+      audioContext.createMediaStreamSource(stream).connect(analyser);
+
+      const frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      const animateLevels = () => {
+        analyser.getByteFrequencyData(frequencyData);
+        const levels = Array.from(frequencyData)
+          .slice(1, 9)
+          .map((value) => Math.max(8, Math.round((value / 255) * 42)));
+        setMicLevels(levels);
+        animationFrameRef.current = requestAnimationFrame(animateLevels);
+      };
+      animateLevels();
+
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
       audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
+      recorder.ondataavailable = (event) => {
+        if (event.data.size) audioChunksRef.current.push(event.data);
       };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
+      recorder.onstop = async () => {
+        stopRecordingResources();
+        setIsRecording(false);
+        setMicLevels([8, 10, 13, 9, 12, 8, 11, 9]);
+        const blob = new Blob(audioChunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
         });
-        await handleTranscribeAudio(audioBlob);
-        stream.getTracks().forEach((track) => track.stop());
+        await transcribe(blob);
       };
-
-      mediaRecorder.start();
+      recorder.start();
       setIsRecording(true);
     } catch (error) {
-      console.error("Recording error:", error);
-      toast.error("Failed to access microphone");
+      setProviderError(
+        error.name === "NotAllowedError"
+          ? "Microphone permission was denied."
+          : "Could not start the microphone."
+      );
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
     }
   };
 
-  const handleTranscribeAudio = async (audioBlob) => {
+  const transcribe = async (audioBlob) => {
     setIsTranscribing(true);
     try {
-      const audioFile = new File([audioBlob], "recording.webm", {
-        type: "audio/webm",
+      const extension = audioBlob.type.includes("ogg")
+        ? "ogg"
+        : audioBlob.type.includes("mp4")
+          ? "m4a"
+          : "webm";
+      const file = new File([audioBlob], `voice-note.${extension}`, {
+        type: audioBlob.type,
       });
-      const response = await transcribeAudio(audioFile);
-      const transcribedText = response.data.text;
-      setInputMessage(transcribedText);
-      toast.success("Voice transcribed successfully");
+      const response = await transcribeAudio(file, selectedLanguage);
+      const text = response.data?.text || response.data?.data?.text;
+      if (!text) throw new Error("No transcription was returned.");
+      const duration = Math.max(
+        1,
+        Math.round(
+          (Date.now() - (recordingStartedAtRef.current || Date.now())) / 1000
+        )
+      );
+      setMessages((current) => [
+        ...current,
+        {
+          role: "voice",
+          content: text,
+          duration,
+          levels: micLevels,
+        },
+      ]);
+      setInputMessage("");
+      setProviderError("");
+      toast.success("Voice message sent");
+      await handleSendMessage(text);
     } catch (error) {
-      console.error("Transcription error:", error);
-      toast.error("Failed to transcribe audio");
+      setProviderError(
+        error.response?.data?.message ||
+          error.message ||
+          "The transcription provider is unavailable."
+      );
     } finally {
       setIsTranscribing(false);
     }
   };
 
-  const suggestedQuestions = [
-    "What do these composition values mean?",
-    "Why is this grade recommended?",
+  const handleSpeakMessage = async (text, index) => {
+    if (speakingIndex === index) {
+      speechAudioRef.current?.pause();
+      setSpeakingIndex(null);
+      return;
+    }
+
+    try {
+      setSpeakingIndex(index);
+      setProviderError("");
+      speechAudioRef.current?.pause();
+      if (speechUrlRef.current) URL.revokeObjectURL(speechUrlRef.current);
+      const blob = await synthesizeSpeech(text, selectedLanguage);
+      const url = URL.createObjectURL(blob);
+      speechUrlRef.current = url;
+      const audio = new Audio(url);
+      speechAudioRef.current = audio;
+      audio.onended = () => {
+        setSpeakingIndex(null);
+        URL.revokeObjectURL(url);
+        speechUrlRef.current = null;
+      };
+      audio.onerror = () => {
+        setSpeakingIndex(null);
+        setProviderError("The voice provider could not play the response.");
+        URL.revokeObjectURL(url);
+        speechUrlRef.current = null;
+      };
+      await audio.play();
+    } catch (error) {
+      setSpeakingIndex(null);
+      setProviderError(
+        error.response?.data?.message ||
+          error.message ||
+          "The voice provider could not synthesize speech."
+      );
+    }
+  };
+
+  const suggestedPrompts = [
+    "Explain this analysis",
     "What should I check next?",
-    "Explain the confidence score",
+    "Summarize the key risk",
   ];
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed bottom-2 right-2 sm:bottom-4 sm:right-4 w-[calc(100vw-1rem)] sm:w-96 h-[28rem] sm:h-[32rem] flex flex-col bg-white rounded-lg shadow-2xl border border-gray-200 z-50 max-w-md">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 bg-emerald-600 rounded-t-lg">
-        <h3 className="font-semibold text-white text-sm sm:text-base">AI Copilot</h3>
-        <div className="flex gap-1 sm:gap-2">
-          <button
-            onClick={handleClearHistory}
-            className="text-white hover:bg-emerald-700 p-1 sm:p-1.5 rounded transition-colors text-sm"
-            title="Clear history"
-          >
-            🗑️
-          </button>
-          <button
-            onClick={onClose}
-            className="text-white hover:bg-emerald-700 p-1 sm:p-1.5 rounded transition-colors text-sm"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500 mt-4 sm:mt-8">
-            <p className="mb-3 sm:mb-4 text-sm sm:text-base">👋 Hi! I'm your AI assistant.</p>
-            <p className="text-xs sm:text-sm">Ask me anything about your analysis!</p>
-            <div className="mt-4 sm:mt-6 space-y-1 sm:space-y-2">
-              <p className="text-xs font-medium text-gray-600">
-                Suggested questions:
-              </p>
-              {suggestedQuestions.map((question, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSendMessage(question)}
-                  className="block w-full text-left text-xs sm:text-sm text-emerald-600 hover:bg-emerald-50 p-1.5 sm:p-2 rounded transition-colors"
-                >
-                  {question}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-[85%] p-2 sm:p-3 rounded-lg ${
-                  message.role === "user"
-                    ? "bg-emerald-600 text-white"
-                    : "bg-gray-100 text-gray-900"
-                }`}
-              >
-                <p className="text-xs sm:text-sm whitespace-pre-wrap">
-                  {message.content}
-                </p>
-              </div>
-            </div>
-          ))
-        )}
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 p-2 sm:p-3 rounded-lg">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce" />
-                <span
-                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.1s" }}
-                />
-                <span
-                  className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="p-3 sm:p-4 border-t border-gray-200">
-        {isTranscribing && (
-          <div className="mb-2 text-xs sm:text-sm text-emerald-600 flex items-center gap-2">
-            <span className="animate-pulse">🎤</span> Transcribing...
-          </div>
-        )}
-        <div className="flex gap-1.5 sm:gap-2">
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            placeholder="Ask me anything..."
-            className="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none"
-            disabled={isLoading || isTranscribing}
+    <>
+      {!open && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="group fixed bottom-5 right-5 z-[60] flex h-16 w-16 items-center justify-center rounded-full border border-emerald-300/70 bg-white/90 text-emerald-700 shadow-[0_12px_40px_rgba(16,185,129,.24)] backdrop-blur-xl transition duration-300 hover:scale-105"
+          aria-label="Open AI Copilot"
+        >
+          <span className="absolute -left-1 top-1 h-2 w-2 animate-bounce rounded-full bg-emerald-400" style={{ animationDelay: "0ms" }} />
+          <span className="absolute bottom-1 right-0 h-2.5 w-2.5 animate-bounce rounded-full bg-emerald-500" style={{ animationDelay: "160ms" }} />
+          <span className="absolute right-[-3px] top-3 h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-300" style={{ animationDelay: "320ms" }} />
+          <span className="absolute inset-1 rounded-full bg-[linear-gradient(135deg,rgba(236,253,245,.98),rgba(209,250,229,.92))]" />
+          <img
+            src={copilotLogo}
+            alt="MetalliSense Copilot"
+            className="relative h-10 w-10 rounded-full object-contain p-0.5"
           />
-          <button
-            onClick={isRecording ? stopRecording : startRecording}
-            className={`p-1.5 sm:p-2 rounded-lg transition-colors text-sm ${
-              isRecording
-                ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
-                : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-            }`}
-            title={isRecording ? "Stop recording" : "Start recording"}
-            disabled={isTranscribing}
-          >
-            🎤
-          </button>
-          <Button
-            onClick={() => handleSendMessage()}
-            disabled={isLoading || !inputMessage.trim() || isTranscribing}
-            size="sm"
-          >
-            Send
-          </Button>
+        </button>
+      )}
+
+      {open && (
+        <div className="fixed bottom-3 right-3 z-[60] flex h-[min(680px,calc(100vh-1.5rem))] w-[calc(100vw-1.5rem)] max-w-[430px] flex-col overflow-hidden rounded-[28px] border border-emerald-100/80 bg-[linear-gradient(145deg,rgba(255,255,255,.82),rgba(236,253,245,.78))] text-slate-900 shadow-[0_24px_80px_rgba(16,185,129,.22)] backdrop-blur-2xl sm:bottom-5 sm:right-5">
+          <div className="relative overflow-hidden px-5 pb-4 pt-5">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(16,185,129,.20),transparent_45%),linear-gradient(135deg,rgba(255,255,255,.74),rgba(236,253,245,.50))]" />
+            <div className="relative flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <img
+                  src={copilotLogo}
+                  alt=""
+                  className="h-11 w-11 rounded-2xl border border-emerald-200 bg-white/80 object-contain p-1 shadow-sm"
+                />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold tracking-wide">MetalliSense Copilot</h3>
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,.9)]" />
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">Analysis-aware assistant</p>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={handleClearHistory}
+                  className="rounded-xl p-2 text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+                  title="New session"
+                  aria-label="Clear history and start a new session"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={closePanel}
+                  className="rounded-xl p-2 text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+                  aria-label="Close assistant"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {providerError && (
+            <div className="mx-4 mt-1 flex items-start justify-between rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+              <span>{providerError}</span>
+              <button
+                type="button"
+                onClick={() => setProviderError("")}
+                className="ml-2 text-red-300"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-y-auto px-4 py-3">
+            {messages.length === 0 ? (
+              <div className="flex h-full flex-col justify-end pb-3">
+                <div className="mb-5">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-200 bg-white/70 shadow-sm">
+                    <Sparkles className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <h4 className="text-xl font-semibold">How can I help?</h4>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Ask with text or voice. Responses use the current analysis context.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {suggestedPrompts.map((prompt) => (
+                    <button
+                      key={prompt}
+                      type="button"
+                      onClick={() => handleSendMessage(prompt)}
+                      className="w-full rounded-2xl border border-emerald-100/80 bg-white/65 px-4 py-3 text-left text-sm text-slate-700 shadow-sm backdrop-blur-md transition hover:border-emerald-300/70 hover:bg-emerald-50/80"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message, index) => (
+                  <div
+                    key={`${message.role}-${index}`}
+                    className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[88%] ${
+                        message.role === "user"
+                          ? "rounded-[20px] rounded-br-md bg-emerald-500 px-4 py-3 text-sm text-white"
+                          : "rounded-[20px] rounded-bl-md border border-emerald-100/80 bg-white/75 px-4 py-3 shadow-sm"
+                      }`}
+                    >
+                      {message.role === "assistant" ? (
+                        <div>
+                          <AssistantResponse content={message.content} />
+                          <button
+                            type="button"
+                            onClick={() => handleSpeakMessage(message.content, index)}
+                            className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700"
+                            disabled={speakingIndex !== null && speakingIndex !== index}
+                          >
+                            {speakingIndex === index ? (
+                              <><VolumeX className="h-3.5 w-3.5" /> Stop</>
+                            ) : (
+                              <><Volume2 className="h-3.5 w-3.5" /> Speak</>
+                            )}
+                          </button>
+                        </div>
+                      ) : message.role === "voice" ? (
+                        <div className="flex min-w-[210px] items-center gap-3">
+                          <button
+                            type="button"
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"
+                            aria-label="Voice message"
+                          >
+                            <Play className="h-4 w-4 fill-current" />
+                          </button>
+                          <div className="flex h-7 flex-1 items-center gap-[3px]">
+                            {(message.levels || [8, 14, 20, 12, 24, 17, 9, 22, 15, 8])
+                              .slice(0, 10)
+                              .map((level, levelIndex) => (
+                                <span
+                                  key={levelIndex}
+                                  className="w-1 rounded-full bg-emerald-400"
+                                  style={{ height: `${Math.max(6, level * 0.55)}px` }}
+                                />
+                              ))}
+                          </div>
+                          <span className="text-xs text-slate-500">
+                            0:{String(message.duration || 1).padStart(2, "0")}
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-sm leading-6">{message.content}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map((dot) => (
+                        <span
+                          key={dot}
+                          className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-400"
+                          style={{ animationDelay: `${dot * 120}ms` }}
+                        />
+                      ))}
+                    </div>
+                    Generating response
+                  </div>
+                )}
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="border-t border-emerald-100/70 bg-white/55 p-3 backdrop-blur-xl">
+            {languages.length > 0 && (
+              <div className="relative mb-2 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setLanguageMenuOpen((current) => !current)}
+                  className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-white/85 px-2.5 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
+                  aria-expanded={languageMenuOpen}
+                >
+                  <Globe2 className="h-3.5 w-3.5 text-emerald-600" />
+                  {languages.find((language) =>
+                    (typeof language === "string" ? language : language.code) === selectedLanguage
+                  )?.name ||
+                    (typeof languages.find((language) =>
+                      (typeof language === "string" ? language : language.code) === selectedLanguage
+                    ) === "string"
+                      ? selectedLanguage
+                      : selectedLanguage)}
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+                {languageMenuOpen && (
+                  <div className="absolute bottom-9 left-0 z-20 w-44 overflow-hidden rounded-2xl border border-emerald-100 bg-white/95 p-1 shadow-[0_16px_40px_rgba(15,23,42,.14)] backdrop-blur-xl">
+                    {languages.map((language) => {
+                      const code =
+                        typeof language === "string" ? language : language.code;
+                      const label =
+                        typeof language === "string"
+                          ? language
+                          : language.name || language.code;
+                      return (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLanguage(code);
+                            setLanguageMenuOpen(false);
+                          }}
+                          className={`w-full rounded-xl px-3 py-2 text-left text-xs ${
+                            code === selectedLanguage
+                              ? "bg-emerald-50 font-semibold text-emerald-700"
+                              : "text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <span className="flex items-center gap-1 text-[10px] text-slate-500">
+                  <Keyboard className="h-3 w-3" /> Ctrl + Shift + M
+                </span>
+              </div>
+            )}
+
+            {isRecording && (
+              <div className="mb-3 flex items-center justify-between rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.08] px-3 py-2">
+                <div className="flex h-8 items-end gap-1">
+                  {micLevels.map((level, index) => (
+                    <span
+                      key={index}
+                      className="w-1 rounded-full bg-emerald-300 transition-[height] duration-75"
+                      style={{ height: `${level}px` }}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs font-medium text-emerald-700">
+                  Listening
+                </span>
+              </div>
+            )}
+
+            {isTranscribing && (
+              <div className="mb-2 flex items-center gap-2 text-xs text-slate-500">
+                <RotateCcw className="h-3.5 w-3.5 animate-spin" />
+                Processing voice
+              </div>
+            )}
+
+            <div className="flex items-end gap-2 rounded-2xl border border-emerald-100/80 bg-white/75 p-2 shadow-sm">
+              <textarea
+                value={inputMessage}
+                onChange={(event) => setInputMessage(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                rows={1}
+                placeholder="Ask Copilot..."
+                className="max-h-24 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm text-slate-800 placeholder:text-slate-400 outline-none"
+                disabled={isLoading || isTranscribing}
+              />
+              <button
+                type="button"
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+                  isRecording
+                    ? "bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,.35)]"
+                    : "bg-emerald-50 text-slate-600 hover:bg-emerald-100"
+                }`}
+                aria-label={isRecording ? "Stop voice input" : "Start voice input"}
+              >
+                {isRecording ? (
+                  <Square className="h-4 w-4 fill-current" />
+                ) : (
+                  <Mic className="h-5 w-5" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSendMessage()}
+                disabled={!inputMessage.trim() || isLoading || isTranscribing}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Send message"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 

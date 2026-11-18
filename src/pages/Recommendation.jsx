@@ -76,6 +76,7 @@ const Recommendation = () => {
   };
 
   const generateCopilotExplanation = async (reading, resultData) => {
+    setLoadingExplanation(true);
     try {
       const response = await getExplanation({
         composition: reading.composition,
@@ -88,7 +89,8 @@ const Recommendation = () => {
       }
     } catch (error) {
       console.error("Failed to get copilot explanation:", error);
-      // Don't show error toast for copilot, it's supplementary
+    } finally {
+      setLoadingExplanation(false);
     }
   };
 
@@ -215,6 +217,10 @@ const Recommendation = () => {
                   <p className="text-xs sm:text-sm text-dark-600 mb-4">
                     The following element adjustments are recommended to
                     optimize the composition:
+                  </p>
+                  <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs sm:text-sm font-semibold text-amber-800">
+                    AI recommendations are advisory. Human approval is required
+                    before any alloy change.
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-4">
                     {Object.entries(
@@ -367,67 +373,6 @@ const Recommendation = () => {
                             className="flex items-center justify-between p-2 bg-yellow-50 rounded text-sm"
                           >
                             <span className="font-mono font-bold text-dark-900">
-                              {/* AI Explanation Button */}
-                              <div className="flex justify-center">
-                                <Button
-                                  onClick={handleGetAIExplanation}
-                                  loading={loadingExplanation}
-                                  disabled={loadingExplanation}
-                                  className="w-full md:w-auto"
-                                  variant="success"
-                                >
-                                  <Sparkles className="w-4 h-4 mr-2" />
-                                  {aiExplanation
-                                    ? "Regenerate AI Reasoning"
-                                    : "Get AI Reasoning"}
-                                </Button>
-                              </div>
-
-                              {/* AI Explanation Display */}
-                              {aiExplanation && (
-                                <Card className="border-2 border-emerald-200">
-                                  <div className="space-y-4">
-                                    <div
-                                      className="flex items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
-                                      onClick={
-                                        audioUrl ? handlePlayAudio : undefined
-                                      }
-                                      title={
-                                        audioUrl
-                                          ? isPlaying
-                                            ? "Click to pause audio"
-                                            : "Click to play audio explanation"
-                                          : "Audio not available"
-                                      }
-                                    >
-                                      <Sparkles className="w-5 h-5" />
-                                      <h3 className="text-lg font-semibold text-dark-900">
-                                        Gemini AI Summary
-                                      </h3>
-                                      {audioUrl &&
-                                        (isPlaying ? (
-                                          <VolumeX className="w-5 h-5 text-emerald-600" />
-                                        ) : (
-                                          <Volume2 className="w-5 h-5 text-emerald-600" />
-                                        ))}
-                                      <Badge
-                                        variant="success"
-                                        className="ml-auto"
-                                      >
-                                        Gemini Powered
-                                      </Badge>
-                                    </div>
-
-                                    <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-6">
-                                      <div className="prose prose-sm max-w-none">
-                                        <div className="text-dark-800 whitespace-pre-wrap leading-relaxed">
-                                          {aiExplanation}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </Card>
-                              )}
                               {deviation.element}
                             </span>
                             <div className="flex items-center gap-3 text-dark-700">
@@ -454,18 +399,27 @@ const Recommendation = () => {
         </div>
       )}
 
-      {/* Copilot Explanation */}
-      {copilotExplanation && <ExplanationCard explanation={copilotExplanation} />}
-
-      {/* AI Chat Button */}
       {result && (
-        <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-3 sm:p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
-          title="Open AI Copilot Chat"
-        >
-          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-        </button>
+        <div className="flex justify-center">
+          <Button
+            onClick={handleGetAIExplanation}
+            loading={loadingExplanation}
+            disabled={loadingExplanation}
+            className="w-full sm:w-auto"
+            variant="success"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            {copilotExplanation ? "Refresh AI Reasoning" : "Get AI Reasoning"}
+          </Button>
+        </div>
+      )}
+
+      {/* Copilot Explanation */}
+      {(copilotExplanation || loadingExplanation) && (
+        <ExplanationCard
+          explanation={copilotExplanation}
+          loading={loadingExplanation}
+        />
       )}
 
       {/* AI Chat Interface */}

@@ -1,30 +1,33 @@
 import api from "./api";
 
 // AI Health Check
-export const checkAIHealth = () => api.get("/ai/health");
+export const checkAIHealth = () => api.get("/api/v2/ai/health");
 
 // Anomaly Detection - Direct endpoint
 export const predictAnomaly = async (data) => {
   console.log("🔍 Anomaly Predict Request:", data);
-  const response = await api.post("/ai/anomaly/predict", data);
+  const response = await api.post("/api/v2/ai/anomaly/predict", data);
   console.log("✅ Anomaly Predict Response:", response.data);
   return response;
 };
 
 // Individual Analysis (Anomaly + Alloy)
 export const analyzeIndividual = (data) =>
-  api.post("/ai/individual/analyze", data);
+  api.post("/api/v2/ai/individual/analyze", data);
 
 // AI Agent Analysis
-export const analyzeAgent = (data) => api.post("/ai/agent/analyze", data);
+export const analyzeAgent = (data) =>
+  api.post("/api/v2/ai/agent/analyze", data);
 
 // AI Explanation Services (Google Gemini Integration)
 // Analyze reading with AI-powered explanation
 export const analyzeWithExplanation = (data) =>
-  api.post("/ai/analyze-with-explanation", data);
+  api.post("/api/v2/ai/analyze-with-explanation", data);
 
 // Get AI explanation for specific results
-export const explainResult = (data) => api.post("/ai/explain", data);
+export const explainResult = (data) =>
+  api.post("/api/v2/ai/explain", data);
 
 // Run what-if scenario analysis
-export const whatIfAnalysis = (data) => api.post("/ai/what-if", data);
+export const whatIfAnalysis = (data) =>
+  api.post("/api/v2/ai/what-if", data);

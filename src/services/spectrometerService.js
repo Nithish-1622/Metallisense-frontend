@@ -1,5 +1,8 @@
 import api from "./api";
 
+const OPC_READING_URL =
+  "http://localhost:3000/api/v1/spectrometer/opc-reading";
+
 // Get OPC status (v1)
 export const getSpectrometerOPCStatus = () =>
   api.get("/api/v1/spectrometer/opc-status");
@@ -14,7 +17,7 @@ export const disconnectSpectrometerOPC = () =>
 
 // Request OPC reading
 export const requestOPCReading = () =>
-  api.post("/api/v1/spectrometer/opc-reading");
+  api.post(OPC_READING_URL);
 
 // Get all readings
 export const getAllReadings = (params) =>
