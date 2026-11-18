@@ -69,6 +69,7 @@ const AnomalyDetection = () => {
   };
 
   const generateCopilotExplanation = async (reading, result) => {
+    setLoadingExplanation(true);
     try {
       const response = await getExplanation({
         composition: reading.composition,
@@ -81,7 +82,8 @@ const AnomalyDetection = () => {
       }
     } catch (error) {
       console.error("Failed to get copilot explanation:", error);
-      // Don't show error toast for copilot, it's supplementary
+    } finally {
+      setLoadingExplanation(false);
     }
   };
 
@@ -376,48 +378,22 @@ const AnomalyDetection = () => {
                   variant="success"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  {aiExplanation ? "Regenerate AI Reasoning" : "Get AI Reasoning"}
+                  {copilotExplanation ? "Refresh AI Reasoning" : "Get AI Reasoning"}
                 </Button>
               </div>
             </Card>
           )}
 
-          {/* AI Explanation Display */}
-          {aiExplanation && (
-            <Card className="border-2 border-emerald-200">
-              <div className="space-y-3 sm:space-y-4">
-                <div 
-                  className="flex flex-wrap items-center gap-2 text-emerald-700 cursor-pointer hover:bg-emerald-50 p-2 rounded-lg transition-colors"
-                  onClick={audioUrl ? handlePlayAudio : undefined}
-                  title={audioUrl ? (isPlaying ? 'Click to pause audio' : 'Click to play audio explanation') : 'Audio not available'}
-                >
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <h3 className="text-base sm:text-lg font-semibold text-dark-900">
-                    Gemini AI Summary
-                  </h3>
-                  {audioUrl && (
-                    isPlaying ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
-                  )}
-                  <Badge variant="success" className="ml-auto">
-                    Gemini Powered
-                  </Badge>
-                </div>
-                
-                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 sm:p-6">
-                  <div className="prose prose-sm max-w-none">
-                    <div className="text-dark-800 whitespace-pre-wrap leading-relaxed text-xs sm:text-sm">
-                      {aiExplanation}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          )}
         </>
       )}
 
       {/* Copilot Explanation */}
-      {copilotExplanation && <ExplanationCard explanation={copilotExplanation} />}
+      {(copilotExplanation || loadingExplanation) && (
+        <ExplanationCard
+          explanation={copilotExplanation}
+          loading={loadingExplanation}
+        />
+      )}
 
       {/* Empty State */}
       {!generatedReading && !analyzing && (
@@ -430,17 +406,6 @@ const AnomalyDetection = () => {
             Generate a synthetic reading to begin anomaly detection
           </p>
         </Card>
-      )}
-
-      {/* AI Chat Button */}
-      {analysisResult && (
-        <button
-          onClick={() => setIsChatOpen(!isChatOpen)}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full p-3 sm:p-4 shadow-lg transition-all duration-200 hover:scale-110 z-40"
-          title="Open AI Copilot Chat"
-        >
-          <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-        </button>
       )}
 
       {/* AI Chat Interface */}
