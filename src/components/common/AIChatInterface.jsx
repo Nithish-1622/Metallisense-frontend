@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Mic,
   Square,
+  OctagonX,
   Send,
   Trash2,
   X,
@@ -162,6 +163,7 @@ const AIChatInterface = ({ isOpen = false, onClose = () => {} }) => {
   const audioChunksRef = useRef([]);
   const speechAudioRef = useRef(null);
   const speechUrlRef = useRef(null);
+  const chatAbortRef = useRef(null);
 
   useEffect(() => setOpen(isOpen), [isOpen]);
 
@@ -218,8 +220,34 @@ const AIChatInterface = ({ isOpen = false, onClose = () => {} }) => {
   };
 
   const closePanel = () => {
+    quitCopilot();
     setOpen(false);
     onClose();
+  };
+
+  const quitCopilot = () => {
+    chatAbortRef.current?.abort();
+    chatAbortRef.current = null;
+
+    speechAudioRef.current?.pause();
+    if (speechUrlRef.current) {
+      URL.revokeObjectURL(speechUrlRef.current);
+      speechUrlRef.current = null;
+    }
+
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+    stopRecordingResources();
+
+    setIsLoading(false);
+    setIsTranscribing(false);
+    setIsRecording(false);
+    setSpeakingIndex(null);
+    setMicLevels([8, 10, 13, 9, 12, 8, 11, 9]);
   };
 
   const playAssistantResponse = async (text) => {
@@ -273,7 +301,14 @@ const AIChatInterface = ({ isOpen = false, onClose = () => {} }) => {
     setProviderError("");
 
     try {
-      const response = await sendChatMessage(text, true, sessionId);
+      chatAbortRef.current?.abort();
+      chatAbortRef.current = new AbortController();
+      const response = await sendChatMessage(
+        text,
+        true,
+        sessionId,
+        chatAbortRef.current.signal
+      );
       const data = response.data?.data || response.data;
       const serverSessionId = data?.session_id || response.data?.session_id;
       if (serverSessionId) setSessionId(serverSessionId);
@@ -290,6 +325,10 @@ const AIChatInterface = ({ isOpen = false, onClose = () => {} }) => {
         await playAssistantResponse(reply);
       }
     } catch (error) {
+      if (error.name === "CanceledError" || error.code === "ERR_CANCELED") {
+        setProviderError("");
+        return;
+      }
       const message =
         error.response?.data?.message ||
         error.message ||
@@ -518,6 +557,18 @@ const AIChatInterface = ({ isOpen = false, onClose = () => {} }) => {
                 </div>
               </div>
               <div className="flex gap-1">
+                {(isLoading || isRecording || isTranscribing || speakingIndex !== null) && (
+                  <button
+                    type="button"
+                    onClick={quitCopilot}
+                    className="flex items-center gap-1.5 rounded-xl border border-red-100 bg-red-50 px-2.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-100"
+                    title="Stop voice and AI response"
+                    aria-label="Quit active AI input"
+                  >
+                    <OctagonX className="h-4 w-4" />
+                    Quit
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={handleClearHistory}

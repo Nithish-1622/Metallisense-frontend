@@ -27,13 +27,18 @@ export const getExplanation = (data) =>
 export const sendChatMessage = (
   message,
   includeContext = true,
-  sessionId
+  sessionId,
+  signal
 ) =>
-  copilotApi.post("/copilot/chat", {
-    message,
-    include_context: includeContext,
-    ...(sessionId ? { session_id: sessionId } : {}),
-  });
+  copilotApi.post(
+    "/copilot/chat",
+    {
+      message,
+      include_context: includeContext,
+      ...(sessionId ? { session_id: sessionId } : {}),
+    },
+    { signal }
+  );
 
 /**
  * Clear conversation history
