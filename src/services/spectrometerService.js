@@ -16,8 +16,8 @@ export const disconnectSpectrometerOPC = () =>
   api.post("/api/v1/spectrometer/opc-disconnect");
 
 // Request OPC reading
-export const requestOPCReading = () =>
-  api.post(OPC_READING_URL);
+export const requestOPCReading = (data = { metalGrade: "SG-IRON" }) =>
+  api.post(OPC_READING_URL, data);
 
 // Get all readings
 export const getAllReadings = (params) =>
